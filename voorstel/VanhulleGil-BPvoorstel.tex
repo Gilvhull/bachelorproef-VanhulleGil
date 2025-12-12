@@ -20,14 +20,14 @@
 % \course{Bachelor thesis}
 % \assignmenttype{Research proposal}
 
-\academicyear{2022-2023} % TODO: pas het academiejaar aan
+\academicyear{2025-2026} % TODO: pas het academiejaar aan
 
 % TODO: Werktitel
-\title{Vul hier de voorgestelde titel van je onderzoek in}
+\title{Geautomatiseerd chainen van security-events met graph-based machine learning: een proof-of-concept voor geïntegreerde dreigingsdetectie}
 
 % TODO: Studentnaam en emailadres invullen
-\author{Ernst Aarden}
-\email{ernst.aarden@student.hogent.be}
+\author{Gil Vanhulle}
+\email{gil.vanhulle@student.hogent.be}
 
 % TODO: Medestudent
 % Gaat het om een bachelorproef in samenwerking met een student in een andere
@@ -36,7 +36,7 @@
 % \email{yasmine.alaoui@student.hogent.be}
 
 % TODO: Geef de co-promotor op
-\supervisor[Co-promotor]{S. Beekman (Synalco, \href{mailto:sigrid.beekman@synalco.be}{sigrid.beekman@synalco.be})}
+\supervisor[Co-promotor]{T. Claesens (Secutec, \href{mailto:tibo.claesens@secutec.com}{tibo.claesens@secutec.com})}
 
 % Binnen welke specialisatierichting uit 3TI situeert dit onderzoek zich?
 % Kies uit deze lijst:
@@ -49,14 +49,15 @@
 % - Als het onderzoek niet past binnen een van deze domeinen specifieer je deze
 %   zelf
 %
-\specialisation{Mobile \& Enterprise development}
-\keywords{Scheme, World Wide Web, $\lambda$-calculus}
+\specialisation{AI \& Data Engineering}
+\keywords{Cybersecurity, Graph-based Machine Learning}
 
 \begin{document}
 
 \begin{abstract}
-  Hier schrijf je de samenvatting van je voorstel, als een doorlopende tekst van één paragraaf. Let op: dit is geen inleiding, maar een samenvattende tekst van heel je voorstel met inleiding (voorstelling, kaderen thema), probleemstelling en centrale onderzoeksvraag, onderzoeksdoelstelling (wat zie je als het concrete resultaat van je bachelorproef?), voorgestelde methodologie, verwachte resultaten en meerwaarde van dit onderzoek (wat heeft de doelgroep aan het resultaat?).
+    De toenemende digitalisering en hoeveelheid online data zorgen ervoor dat bedrijven steeds meer te maken krijgen met complexe cyberaanvallen. Huidige detectiesystemen zoals SIEM-platformen genereren grote aantallen losse alerts die vaak afzonderlijk geanalyseerd worden, waardoor belangrijke verbanden tussen events verloren gaan. Deze bachelorproef onderzoekt hoe graph-based machine learning (GBML) kan ingezet worden om security-events automatisch te linken of te “chainen”, zodat aanvalspatronen sneller en nauwkeuriger kunnen worden herkend. \colorbox{yellow}{De centrale onderzoeksvraag} van deze bachelorproef: hoe kan graph-based ML worden toegepast om security-events te correleren en zo contextuele dreigingsdetectie te verbeteren? Om dit te beantwoorden wordt een proof-of-concept ontwikkeld dat gebruikmaakt van graph neural networks (GNNs) om relaties tussen events te leren. De aanpak bestaat uit drie fasen: een analyse van relevante data en correlatiekenmerken, de ontwikkeling van een GNN-prototype in Python met tools zoals PyTorch Geometric en NetworkX, en een evaluatie op basis van precisie, recall en F1-score. Er wordt verwacht dat graph-based modellen een hogere detectienauwkeurigheid en betere contextherkenning zullen opleveren dan klassieke rule-based correlatie. De resultaten moeten aantonen dat GBML niet alleen technisch haalbaar is, maar ook een concrete meerwaarde biedt voor cybersecuritybedrijven en SOC-analisten door snellere, accuratere en contextuele dreigingsdetectie mogelijk te maken.
 \end{abstract}
+
 
 \tableofcontents
 

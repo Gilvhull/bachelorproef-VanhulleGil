@@ -14,71 +14,217 @@
 
 \section{Inleiding}%
 \label{sec:inleiding}
+\newline
+\colorbox{yellow}{(Probleemstelling)} Met de stijgende hoeveelheid online datacollectie en digitale diensten neemt ook de behoefte aan snelle en betrouwbare cybersecurity toe. Aangezien er veel meer cyberaanvallen zijn, dankzij o.a. AI attacks \autocite{Henderson2024}, worden de huidige systemen zoals Security Information and Event Management (SIEM) overspoeld met verschillende security-alerts zoals DNS, assets, logs, vulnerabilities, etc. 
+Deze security-events worden vaak apart geanalyseerd, waardoor de verschillende verbanden tussen deze events verloren gaan. Om complexe aanvalspatronen te bestuderen en herkennen moeten security-events samen geanalyseerd worden om de detectie sneller en potentieel foutloos te maken. 
+\newline
+\newline
+In deze paper worden Graph-based machine \newline learning technieken gebruikt om verbanden te zoeken tussen deze losse events, zodat cybersecurity bedrijven dit kunnen inschakelen in real-time dreigingsdetectie. Hiervoor wordt ook een proof-of-concept opgesteld met als doelstelling een snel en accuraat kettingdetectiesysteem op te stellen.
 
-Waarover zal je bachelorproef gaan? Introduceer het thema en zorg dat volgende zaken zeker duidelijk aanwezig zijn:
+\subsection{Onderzoeksvragen en doelstellingen}
+\label{sec:onderzoeksvragen}
 
-\begin{itemize}
-  \item kaderen thema
-  \item de doelgroep
-  \item de probleemstelling en (centrale) onderzoeksvraag
-  \item de onderzoeksdoelstelling
-\end{itemize}
+Het doel van deze bachelorproef is om te onderzoeken hoe graph-based machine learning kan ingezet worden om security-events automatisch te linken en te correleren, zodat dreigingen sneller en nauwkeuriger kunnen worden herkend.  
+Hieruit volgt de centrale onderzoeksvraag:
+\newline
+\newline
+\colorbox{yellow}{
+    \textbf{Hoofdonderzoeksvraag:}}
+    Hoe kan graph-based machine learning worden toegepast om security-events automatisch te chainen en te correleren, zodat complexe aanvalspatronen sneller en accurater worden gedetecteerd?
+\newline
+\newline
+Om deze hoofdvraag te beantwoorden, worden onderstaande deelvragen opgesteld.  
+De deelvragen worden opgesplitst in twee domeinen: het \emph{probleemdomein}, dat focust op de context en uitdagingen van bestaande systemen, en het \emph{oplossingsdomein}, dat onderzoekt hoe graph-based technieken deze kunnen verbeteren.
+\newline
+\newline
+    \textbf{\colorbox{yellow}{Deelvragen} met betrekking tot het probleemdomein:}
+    \begin{enumerate}
+        \item Welke soorten security-events en datavelden (zoals host, tijdstip, asset-ID of CVE) zijn relevant voor chaining?
+        \item Hoe worden deze events momenteel gecorreleerd of geanalyseerd binnen Security Operations Centers (SOC’s), en wat zijn daarbij de beperkingen?
+        \item Welke relaties en kenmerken zijn cruciaal om events semantisch met elkaar te verbinden (bijvoorbeeld tijd, asset of type dreiging)?
+        \item Wat zijn de voor- en nadelen van bestaande methodes zoals rule-based correlatie of SIEM-regels?
+\end{enumerate}
+\newline
+    \textbf{\colorbox{yellow}{Deelvragen} met betrekking tot het oplossingsdomein:}
+    \begin{enumerate}
+        \item Welke graph-based machine learning-\newline technieken (zoals Graph Neural Networks of graph clustering) zijn het meest geschikt om relaties tussen events te leren?
+        \item Hoe kan een dataset van security-events worden voorbereid en omgezet in een grafenstructuur met nodes en edges?
+        \item Hoe kan de performantie van het chaining-model worden geëvalueerd met objectieve metrics (zoals precision, recall etc.)?
+        \item Hoe kan het prototype visueel worden gemaakt om aanvalspaden en verbanden tussen events duidelijk voor te stellen?
+\end{enumerate}
+\newline
+\newline
+Het beantwoorden van deze vragen moet leiden tot een werkend proof-of-concept dat aantoont hoe graph-based ML kan bijdragen aan snellere en contextueel rijkere dreigingsdetectie binnen bedrijfsomgevingen.
 
-Denk er aan: een typische bachelorproef is \textit{toegepast onderzoek}, wat betekent dat je start vanuit een concrete probleemsituatie in bedrijfscontext, een \textbf{casus}. Het is belangrijk om je onderwerp goed af te bakenen: je gaat voor die \textit{ene specifieke probleemsituatie} op zoek naar een goede oplossing, op basis van de huidige kennis in het vakgebied.
 
-De doelgroep moet ook concreet en duidelijk zijn, dus geen algemene of vaag gedefinieerde groepen zoals \emph{bedrijven}, \emph{developers}, \emph{Vlamingen}, enz. Je richt je in elk geval op it-professionals, een bachelorproef is geen populariserende tekst. Eén specifiek bedrijf (die te maken hebben met een concrete probleemsituatie) is dus beter dan \emph{bedrijven} in het algemeen.
-
-Formuleer duidelijk de onderzoeksvraag! De begeleiders lezen nog steeds te veel voorstellen waarin we geen onderzoeksvraag terugvinden.
-
-Schrijf ook iets over de doelstelling. Wat zie je als het concrete eindresultaat van je onderzoek, naast de uitgeschreven scriptie? Is het een proof-of-concept, een rapport met aanbevelingen, \ldots Met welk eindresultaat kan je je bachelorproef als een succes beschouwen?
 
 %---------- Stand van zaken ---------------------------------------------------
 
 \section{Literatuurstudie}%
 \label{sec:literatuurstudie}
+\subsection{Traditionele Event Correlatie en SIEM}
+Security Information and Event Management (SIEM) systemen worden vandaag het vaakst gebruikt om security-events te verzamelen, te ordenen en te analyseren. Ze halen data uit verschillende bronnen zoals logs, netwerkverkeer en applicaties \autocite{Vielberth2025}. SIEM’s gebruiken vaste regels (rule-based correlatie) die bijvoorbeeld tijd, host of type events combineren om mogelijke aanvallen te vinden. Deze aanpak werkt goed voor gekende patronen, maar volgens meerdere onderzoeken heeft ze beperkingen bij complexe en multiple layer attacks door het grote aantal events en de diversiteit van data \autocite{IBM2024}.  
+\newline
+\newline
+Daarnaast zorgt het hoge aantal alerts dat SOC’s moeten opvolgen voor wat in de literatuur “alert fatigue” genoemd wordt: analisten krijgen te veel meldingen en missen daardoor soms echte dreigingen \autocite{Makhinova2025}.  
+\newline
+\newline
+\newline
+Daarom besluiten veel studies dat de klassieke systemen niet goed genoeg zijn voor moderne, contextuele dreigingsdetectie.
+\newline
+\newline
+\subsection{AI en Machine Learning voor Threat Correlatie}
+Om de beperkingen van rule-based systemen te verbeteren, gebruiken steeds meer organisaties machine learning (ML) en deep learning voor security-analyse \autocite{Gamage2025}.  
+\newline
+ML kan patronen ontdekken in grote datasets die mensen of vaste regels vaak niet zien. Daardoor kunnen aanvallen sneller en nauwkeuriger herkend worden. In recente reviews blijkt dat AI-technieken (zoals supervised ML en deep learning) vaak betere resultaten halen dan klassieke methodes, vooral bij complexe of grote hoeveelheden data \autocite{IBM2024}.  
+\newline
+\newline
+Uit de literatuur blijkt ook dat bepaalde ML-
+\newline
+modellen, zoals convolutionele (CNN) en recurrente netwerken (RNN/LSTM), goed presteren bij het herkennen van opeenvolgende patronen of afwijkingen. Toch hebben ze moeite om relaties te vinden tussen verschillende entiteiten (zoals hosts of alerts) die structureel met elkaar verbonden zijn \autocite{Gamage2025}. Dat zorgt ervoor dat er steeds meer onderzoek komt naar graph-gebaseerde modellen.
+\newline
+\newline
+\subsection{Graph-Based Machine Learning en Graph Neural Networks}
+Graph-based machine learning (GBML)
+\newline
+en vooral Graph Neural Networks (GNNs) worden gezien als veelbelovende methodes om relaties tussen security-events te leren. In deze aanpak worden entiteiten zoals hosts, gebruikers of alerts voorgesteld als knooppunten (nodes), en hun relaties als verbindingen (edges) in een graaf. Op die manier kan het model verbanden leren die in traditionele ML-modellen moeilijk te zien zijn \autocite{Kanka2022}.  
+\newline
+\newline
+Recente onderzoeken tonen aan dat GNN’s beter kunnen omgaan met complexere correlaties die traditionele systemen vaak missen. Zo beschrijft Brooks et al. een GNN-model dat relaties tussen logbronnen en gedragingen leert en daarmee gecoördineerde cyberaanvallen kan herkennen met hogere precisie en betrouwbaarheid dan klassieke correlatie-engines \autocite{Brooks2025}.  
+Andere studies gebruiken graph-matching technieken om alerts te groeperen in graph clusters, wat helpt om meldingen beter te begrijpen en te prioriteren \autocite{Vitulyova2025}.
+\newline
+\newline
+\subsection{Hybride en Geavanceerde Benaderingen}
+Sommige onderzoeken bouwen verder op \newline graph-modellen door ze te combineren met andere ML-technieken. Vitulyova et al. tonen bijvoorbeeld een hybride model dat GNN’s combineert met Long Short-Term Memory (LSTM) netwerken. Zo kunnen ze zowel de structuur (relaties tussen entiteiten) als de tijdsvolgorde van een aanval meenemen \autocite{Vitulyova2025}. Hun resultaten tonen dat zulke modellen erg goed kunnen voorspellen hoe een aanval zich ontwikkelt.  
+\newline
+\newline
+Een recente literatuurstudie laat zien dat er vandaag veel soorten correlatiemethoden bestaan van rule-based tot statistisch en AI-gebaseerd maar dat er nog steeds een tekort is aan oplossingen die schaalbaar én contextueel zijn voor real-time detectie \autocite{Kanka2022}. Dit ondersteunt het idee dat graph-gebaseerde en hybride AI- \newline aanpakken een belangrijk onderwerp blijven voor toekomstig onderzoek.
+\newline
+\newline
+\subsection{Knelpunten en Onderzoeksopeningen}
+Een vaak vermeld probleem in de literatuur is het evenwicht tussen prestatie en uitlegbaarheid. Sommige deep learning-modellen halen sterke resultaten, maar hun werking is moeilijk te \newline begrijpen. Dat is een nadeel in SOC-omgevingen waar beslissingen moeten kunnen worden verantwoord \autocite{Gamage2025}.  
+Daarnaast is er nog de uitdaging van schaalbaarheid, want moderne bedrijven genereren enorme hoeveelheden data die snel en efficiënt moeten worden verwerkt.
+\newline
+\newline
+Samengevat tonen de onderzochte studies dat:
+\begin{itemize}
+    \item Traditionele SIEM- en rule-based systemen nuttig zijn, maar tekortschieten bij complexe aanvalspatronen;
+    \item AI en machine learning veel mogelijkheden bieden om event correlatie te verbeteren;
+    \item Graph-based machine learning, en vooral \newline GNN’s, steeds vaker onderzocht worden omdat ze relaties in data beter kunnen begrijpen;
+    \item Hybride modellen het potentieel hebben om zowel structuur als tijdsaspecten te leren;
+    \item Er nog open vragen zijn rond uitlegbaarheid, real-time schaalbaarheid en praktische integratie.
+\end{itemize}
 
-Hier beschrijf je de \emph{state-of-the-art} rondom je gekozen onderzoeksdomein, d.w.z.\ een inleidende, doorlopende tekst over het onderzoeksdomein van je bachelorproef. Je steunt daarbij heel sterk op de professionele \emph{vakliteratuur}, en niet zozeer op populariserende teksten voor een breed publiek. Wat is de huidige stand van zaken in dit domein, en wat zijn nog eventuele open vragen (die misschien de aanleiding waren tot je onderzoeksvraag!)?
-
-Je mag de titel van deze sectie ook aanpassen (literatuurstudie, stand van zaken, enz.). Zijn er al gelijkaardige onderzoeken gevoerd? Wat concluderen ze? Wat is het verschil met jouw onderzoek?
-
-Verwijs bij elke introductie van een term of bewering over het domein naar de vakliteratuur, bijvoorbeeld~\autocite{Hykes2013}! Denk zeker goed na welke werken je refereert en waarom.
-
-Draag zorg voor correcte literatuurverwijzingen! Een bronvermelding hoort thuis \emph{binnen} de zin waar je je op die bron baseert, dus niet er buiten! Maak meteen een verwijzing als je gebruik maakt van een bron. Doe dit dus \emph{niet} aan het einde van een lange paragraaf. Baseer nooit teveel aansluitende tekst op eenzelfde bron.
-
-Als je informatie over bronnen verzamelt in JabRef, zorg er dan voor dat alle nodige info aanwezig is om de bron terug te vinden (zoals uitvoerig besproken in de lessen Research Methods).
-
-% Voor literatuurverwijzingen zijn er twee belangrijke commando's:
-% \autocite{KEY} => (Auteur, jaartal) Gebruik dit als de naam van de auteur
-%   geen onderdeel is van de zin.
-% \textcite{KEY} => Auteur (jaartal)  Gebruik dit als de auteursnaam wel een
-%   functie heeft in de zin (bv. ``Uit onderzoek door Doll & Hill (1954) bleek
-%   ...'')
-
-Je mag deze sectie nog verder onderverdelen in subsecties als dit de structuur van de tekst kan verduidelijken.
 
 %---------- Methodologie ------------------------------------------------------
-\section{Methodologie}%
+\section{Methodologie}
 \label{sec:methodologie}
 
-Hier beschrijf je hoe je van plan bent het onderzoek te voeren. Welke onderzoekstechniek ga je toepassen om elk van je onderzoeksvragen te beantwoorden? Gebruik je hiervoor literatuurstudie, interviews met belanghebbenden (bv.~voor requirements-analyse), experimenten, simulaties, vergelijkende studie, risico-analyse, PoC, \ldots?
+Het doel van dit onderzoek is om te onderzoeken hoe graph-based machine learning (GBML) kan gebruikt worden om security-events automatisch te linken of te “chainen”.  
+De bachelorproef heeft een toegepast en technisch karakter, waarbij een proof-of-concept (PoC) wordt ontwikkeld en getest op realistische data.  
+De onderzoeksaanpak bestaat uit drie fasen: een analyse van het probleem en de vereisten, de ontwikkeling van het prototype, en een evaluatie van de resultaten.  
+\newline
+\newline
+Elke fase levert een concreet resultaat of \emph{deliverable} op. Deze aanpak sluit aan bij eerder onderzoek dat graph-based technieken inzet voor correlatie van security-data \autocite{Kanka2022, Brooks2025, Vitulyova2025}.
+\newline
+\newline
 
-Valt je onderwerp onder één van de typische soorten bachelorproeven die besproken zijn in de lessen Research Methods (bv.\ vergelijkende studie of risico-analyse)? Zorg er dan ook voor dat we duidelijk de verschillende stappen terug vinden die we verwachten in dit soort onderzoek!
+\subsection{Fase 1: Analyse van het probleemdomein}
+In de eerste fase wordt de probleemcontext verder onderzocht.  
+Er wordt bepaald welke soorten security-events relevant zijn voor chaining, zoals logs, DNS-data, asset-informatie, kwetsbaarheden (CVE’s) en alerts uit SIEM-systemen.  
+Daarnaast wordt onderzocht welke datavelden nodig zijn (bijv. tijdstip, host, IP-adres, asset-ID, type dreiging) om verbanden tussen events te herkennen.  
+\newline
+\newline
+Er wordt een kleine literatuurstudie uitgevoerd om te bekijken hoe events momenteel gecorreleerd worden in Security Operations Centers (SOC’s) en welke beperkingen er bestaan bij rule-based systemen.  
+Ook worden bestaande frameworks zoals MITRE ATT\&CK en NIST SP 800-215 geraadpleegd, die beschrijven hoe aanvalspatronen en threat intelligence kunnen worden gekoppeld \autocite{MITRE2024, NIST2023}.  
+\newline
+\newline
+Deze fase resulteert in een \emph{requirements-document} waarin staat welke data en relaties het model moet ondersteunen en welke meetbare doelen (zoals detectiesnelheid of precisie) zullen gebruikt worden tijdens de evaluatie.
 
-Vermijd onderzoekstechnieken die geen objectieve, meetbare resultaten kunnen opleveren. Enquêtes, bijvoorbeeld, zijn voor een bachelorproef informatica meestal \textbf{niet geschikt}. De antwoorden zijn eerder meningen dan feiten en in de praktijk blijkt het ook bijzonder moeilijk om voldoende respondenten te vinden. Studenten die een enquête willen voeren, hebben meestal ook geen goede definitie van de populatie, waardoor ook niet kan aangetoond worden dat eventuele resultaten representatief zijn.
+\subsection{Fase 2: Ontwikkeling van het proof-of-concept}
+De tweede fase bestaat uit de praktische uitwerking van het prototype.  
+Er wordt een synthetische dataset opgebouwd die echte security-events nabootst, zonder bedrijfsgevoelige data te gebruiken.  
+Elke gebeurtenis wordt voorgesteld als een node, en relaties (zoals gedeeld IP, tijdsvenster of asset) worden als edges toegevoegd.  
+Deze dataset vormt de basis voor de grafen waarop het chaining-model zal leren.
+\newline
+\newline
+Vervolgens wordt een graph-based machine learning model ontwikkeld, zoals een Graph Neural Network (GNN) of graph-clustering algoritme.  
+De implementatie gebeurt in \textbf{Python}, met behulp van libraries zoals:
+\begin{itemize}
+    \item \textbf{PyTorch Geometric}: voor graph neural networks en embeddings;
+    \item \textbf{NetworkX}: voor het opbouwen en analyseren van graafstructuren;
+    \item \textbf{Pandas / NumPy}: voor data cleaning en preprocessing;
+    \item \textbf{Matplotlib / Plotly}: voor visualisatie van \newline chaining-resultaten.
+\end{itemize}
+\newline
+Daarnaast wordt gekeken naar open-source dreigingsdata (zoals MISP of MITRE ATT\&CK-samples) om realistische eventtypes te simuleren.  
+Het prototype zal de chaining visualiseren als een interactief netwerk waarin nodes (events) met elkaar verbonden worden.  
+\newline
+\newline
+De output van deze fase is een eerste werkende PoC die automatisch verbanden legt tussen events op basis van hun eigenschappen en relaties.
 
-Uit dit onderdeel moet duidelijk naar voor komen dat je bachelorproef ook technisch voldoen\-de diepgang zal bevatten. Het zou niet kloppen als een bachelorproef informatica ook door bv.\ een student marketing zou kunnen uitgevoerd worden.
+\subsection{Fase 3: Evaluatie en validatie}
+In de derde fase wordt de performantie van het model geëvalueerd met objectieve metrics zoals:
+\begin{itemize}
+    \item \textbf{Precision en recall}: om de juistheid van detectie te meten;
+    \item \textbf{F1-score}: om de balans tussen precisie en volledigheid te evalueren;
+    \item \textbf{Tijd-tot-detectie}: om de snelheid van chaining te meten.
+\end{itemize}
+\newline
+De resultaten worden vergeleken met een eenvoudige baseline (bijv. rule-based correlatie of random linking) om te zien of GBML effectief betere resultaten oplevert.  
+Er wordt ook gekeken naar uitlegbaarheid: kan het model verduidelijken waarom twee events aan elkaar gelinkt worden, of blijft dit een “black box”?  
+\newline
+\newline
+De output van deze fase is een \emph{evaluatierapport} met meetbare resultaten, grafieken en een visuele voorstelling van de chaining-output in de vorm van een netwerkdiagram.
 
-Je beschrijft ook al welke tools (hardware, software, diensten, \ldots) je denkt hiervoor te gebruiken of te ontwikkelen.
+\subsection{Planning en tijdsinschatting}
+Het volledige onderzoek loopt over ongeveer 14 weken.  
+De globale planning ziet er als volgt uit:
+\begin{itemize}
+    \item \textbf{Week 1–3:} Analyse van het probleem, literatuuronderzoek en data-vereisten opstellen.
+    \item \textbf{Week 4–7:} Ontwikkeling van de dataset en het proof-of-concept in Python.
+    \item \textbf{Week 8–11:} Testen, finetunen en documenteren van het model.
+    \item \textbf{Week 12–14:} Evaluatie, resultaten visualiseren en rapporteren.
+\end{itemize}
+Elke fase eindigt met een concreet deliverable: een requirements-document, een werkend prototype en een evaluatierapport met resultaten en conclusies.
 
-Probeer ook een tijdschatting te maken. Hoe lang zal je met elke fase van je onderzoek bezig zijn en wat zijn de concrete \emph{deliverables} in elke fase?
+\subsection{Onderzoekstype}
+Deze bachelorproef valt onder de categorie \textbf{toegepast en experimenteel onderzoek}.  
+Het onderzoek combineert literatuurstudie en praktische implementatie in de vorm van een proof-of-concept.  
+De aanpak is meetbaar en reproduceerbaar, met focus op technische uitvoering, waardoor het voldoende diepgang biedt voor een bachelor toegepaste informatica.
+\newline
+\newline
+\newline
+\newline
+\newline
+\newline
 
 %---------- Verwachte resultaten ----------------------------------------------
-\section{Verwacht resultaat, conclusie}%
-\label{sec:verwachte_resultaten}
+\section{Conclusie en verwachte resultaten}
+\label{sec:conclusie}
 
-Hier beschrijf je welke resultaten je verwacht. Als je metingen en simulaties uitvoert, kan je hier al mock-ups maken van de grafieken samen met de verwachte conclusies. Benoem zeker al je assen en de onderdelen van de grafiek die je gaat gebruiken. Dit zorgt ervoor dat je concreet weet welk soort data je moet verzamelen en hoe je die moet meten.
+Uit dit onderzoek wordt verwacht dat graph-based machine learning (GBML) een duidelijke meerwaarde kan bieden voor het automatisch linken van security-events.  
+Door gebruik te maken van grafenstructuren en technieken zoals Graph Neural Networks (GNN), kan het systeem verbanden leren die niet rechtstreeks zichtbaar zijn in traditionele SIEM-oplossingen of rule-based correlatie.  
+\newline
+\newline
+Het proof-of-concept zal waarschijnlijk aantonen dat graph-based modellen een hogere precisie en betere contextherkenning opleveren bij het detecteren van complexe aanvalspatronen, vergeleken met bestaande methodes.  
+Volgens eerdere studies \autocite{Vitulyova2025, Gamage2025} kunnen zulke modellen subtiele relaties tussen events ontdekken, zoals overeenkomsten in tijd, asset of gedrag, wat leidt tot minder false positives en snellere detectie.
+\newline
+\newline
+De verwachte resultaten kunnen schematisch worden weergegeven door een vergelijking van klassieke en graph-based detectie:
+\begin{itemize}
+    \item Op de x-as: de hoeveelheid verwerkte events of complexiteit van de dataset;
+    \item Op de y-as: de nauwkeurigheid of F1-score van de detectie.
+\end{itemize}
+Er wordt verwacht dat de curve van het GBML-model trager stijgt in verwerkingskost, maar sneller hogere detectiekwaliteit bereikt dan het rule-based model.  
+De resultaten zullen gevisualiseerd worden in grafieken die de prestatieverschillen (precision, recall, F1-score) tonen tussen beide methodes.
+\newline
+\newline
+De meerwaarde voor de doelgroep, met name cybersecuritybedrijven zoals Secutec en SOC-\newline analisten, ligt in het feit dat deze aanpak toelaat om sneller verbanden te zien tussen schijnbare losse alerts.  
+Dat kan leiden tot kortere reactietijden, een daling van onnodige meldingen, en een beter overzicht van dreigingen binnen een organisatie.  
+\newline
+\newline
+Hoewel er nog uitdagingen verwacht worden op vlak van schaalbaarheid en uitlegbaarheid, biedt het onderzoek een praktisch inzicht in hoe graph-based ML in de toekomst geïntegreerd kan worden in bestaande detectiesystemen.  
+De proof-of-concept zal dus niet alleen technische haalbaarheid aantonen, maar ook dienen als eerste stap richting een meer geautomatiseerde en contextuele benadering van threat detection.
 
-Wat heeft de doelgroep van je onderzoek aan het resultaat? Op welke manier zorgt jouw bachelorproef voor een meerwaarde?
-
-Hier beschrijf je wat je verwacht uit je onderzoek, met de motivatie waarom. Het is \textbf{niet} erg indien uit je onderzoek andere resultaten en conclusies vloeien dan dat je hier beschrijft: het is dan juist interessant om te onderzoeken waarom jouw hypothesen niet overeenkomen met de resultaten.
 
