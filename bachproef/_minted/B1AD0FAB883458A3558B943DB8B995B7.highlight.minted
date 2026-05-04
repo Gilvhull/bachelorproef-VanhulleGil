@@ -1,0 +1,37 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k}{def} \PYG{n+nf}{build\PYGZus{}chains}\PYG{p}{(}\PYG{n}{events}\PYG{p}{,} \PYG{n}{threshold}\PYG{p}{,} \PYG{n}{time\PYGZus{}window\PYGZus{}sec}\PYG{p}{):}
+\PYG{n}{suspicious} \PYG{o}{=} \PYG{n}{events}\PYG{p}{[}
+\PYG{n}{events}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}attack\PYGZus{}prob\PYGZdq{}}\PYG{p}{]} \PYG{o}{\PYGZgt{}=} \PYG{n}{threshold}
+\PYG{p}{]}\PYG{o}{.}\PYG{n}{sort\PYGZus{}values}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}timestamp\PYGZdq{}}\PYG{p}{)}
+
+\PYG{n}{chains} \PYG{o}{=} \PYG{p}{[]}
+\PYG{n}{used} \PYG{o}{=} \PYG{n+nb}{set}\PYG{p}{()}
+
+\PYG{k}{for} \PYG{n}{idx}\PYG{p}{,} \PYG{n}{event} \PYG{o+ow}{in} \PYG{n}{suspicious}\PYG{o}{.}\PYG{n}{iterrows}\PYG{p}{():}
+\PYG{k}{if} \PYG{n}{idx} \PYG{o+ow}{in} \PYG{n}{used}\PYG{p}{:}
+\PYG{k}{continue}
+
+\PYG{n}{chain} \PYG{o}{=} \PYG{p}{[}\PYG{n}{idx}\PYG{p}{]}
+\PYG{n}{used}\PYG{o}{.}\PYG{n}{add}\PYG{p}{(}\PYG{n}{idx}\PYG{p}{)}
+
+\PYG{n}{candidates} \PYG{o}{=} \PYG{n}{suspicious}\PYG{p}{[}
+\PYG{p}{(}\PYG{n}{suspicious}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}timestamp\PYGZdq{}}\PYG{p}{]} \PYG{o}{\PYGZgt{}=} \PYG{n}{event}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}timestamp\PYGZdq{}}\PYG{p}{])} \PYG{o}{\PYGZam{}}
+\PYG{p}{((}\PYG{n}{suspicious}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}timestamp\PYGZdq{}}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{n}{event}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}timestamp\PYGZdq{}}\PYG{p}{])}
+\PYG{o}{.}\PYG{n}{dt}\PYG{o}{.}\PYG{n}{total\PYGZus{}seconds}\PYG{p}{()} \PYG{o}{\PYGZlt{}=} \PYG{n}{time\PYGZus{}window\PYGZus{}sec}\PYG{p}{)}
+\PYG{p}{]}
+
+\PYG{n}{candidates} \PYG{o}{=} \PYG{n}{candidates}\PYG{p}{[}
+\PYG{p}{(}\PYG{n}{candidates}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}src\PYGZus{}entity\PYGZdq{}}\PYG{p}{]} \PYG{o}{==} \PYG{n}{event}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}src\PYGZus{}entity\PYGZdq{}}\PYG{p}{])} \PYG{o}{|}
+\PYG{p}{(}\PYG{n}{candidates}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}dst\PYGZus{}entity\PYGZdq{}}\PYG{p}{]} \PYG{o}{==} \PYG{n}{event}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}dst\PYGZus{}entity\PYGZdq{}}\PYG{p}{])} \PYG{o}{|}
+\PYG{p}{(}\PYG{n}{candidates}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}dst\PYGZus{}port\PYGZdq{}}\PYG{p}{]} \PYG{o}{==} \PYG{n}{event}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}dst\PYGZus{}port\PYGZdq{}}\PYG{p}{])}
+\PYG{p}{]}
+
+\PYG{k}{for} \PYG{n}{candidate\PYGZus{}idx} \PYG{o+ow}{in} \PYG{n}{candidates}\PYG{o}{.}\PYG{n}{index}\PYG{p}{:}
+\PYG{k}{if} \PYG{n}{candidate\PYGZus{}idx} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n}{used}\PYG{p}{:}
+\PYG{n}{chain}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{candidate\PYGZus{}idx}\PYG{p}{)}
+\PYG{n}{used}\PYG{o}{.}\PYG{n}{add}\PYG{p}{(}\PYG{n}{candidate\PYGZus{}idx}\PYG{p}{)}
+
+\PYG{n}{chains}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{chain}\PYG{p}{)}
+
+\PYG{k}{return} \PYG{n}{chains}
+\end{MintedVerbatim}

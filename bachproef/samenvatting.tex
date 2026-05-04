@@ -34,15 +34,46 @@
 % wordt niet in het document ingevoegd.
 
 \IfLanguageName{english}{%
-\selectlanguage{dutch}
-\chapter*{Samenvatting}
-\lipsum[1-4]
-\selectlanguage{english}
+    \selectlanguage{dutch}
+    \chapter*{Samenvatting}
+    \chapter{\IfLanguageName{dutch}{Samenvatting}{Abstract}}
+    
+    Security Operations Centers (SOC’s) worden dagelijks geconfronteerd met een grote hoeveelheid security-events en alerts afkomstig van uiteenlopende databronnen. Traditionele Security Information and Event Management (SIEM)-systemen steunen voornamelijk op rule-based correlatie, wat beperkingen vertoont bij complexe en meerlagige aanvalspatronen. Hierdoor ontstaat een hoge werkdruk voor analisten en een verhoogd risico op gemiste dreigingen.
+    \newline
+    \newline
+    Deze bachelorproef onderzoekt hoe graph-based machine learning (GBML) kan worden toegepast om security-events automatisch te correleren en te chainen. Door events en entiteiten te modelleren als nodes en hun onderlinge relaties als edges binnen een graafstructuur, wordt beoogd om contextuele verbanden expliciet te maken en multi-stage aanvalspatronen beter te detecteren.
+    \newline
+    \newline
+    Op basis van een literatuurstudie worden de beperkingen van traditionele correlatiemechanismen geanalyseerd en worden graph-gebaseerde technieken onderzocht als mogelijke oplossing. Vervolgens werd een methodologie uitgewerkt en geïmplementeerd in de vorm van een proof-of-concept, waarbij security-events worden omgezet naar een grafenstructuur en geanalyseerd met een Relational Graph Convolutional Network (R-GCN).
+    \newline
+    \newline
+    De aanpak werd geëvalueerd op zowel een gelabelde intrusion detection dataset als een meer realistische dataset met enterprise security-events. Voor de eerste dataset werd een multiclass classificatiemodel opgebouwd, waarbij een accuracy van 0.8738 en een weighted F1-score van 0.8744 werd behaald. Deze resultaten tonen aan dat het model in staat is om verschillende aanvalstypes met een relatief hoge nauwkeurigheid te onderscheiden.
+    \newline
+    \newline
+    Voor de tweede dataset werd de focus verlegd naar het rangschikken van verdachte events en het reconstrueren van chains. Hoewel klassieke classificatiemetrics hier minder representatief bleken door sterke class imbalance en beperkte labels, tonen de resultaten aan dat het model in staat is om relevante events te prioritiseren en te groeperen tot samenhangende structuren.
+    \newline
+    \newline
+    De resultaten tonen aan dat graph-based machine learning een flexibele en contextgerichte benadering biedt voor het analyseren van security-events. In situaties met duidelijke labels kan het model ingezet worden voor nauwkeurige classificatie, terwijl in realistischere scenario’s de nadruk verschuift naar prioritisatie en chaining. Deze aanpak vormt een belangrijke stap richting meer contextuele en efficiënte detectiesystemen binnen een SOC-context.
+    \selectlanguage{english}
 }{}
 
 %%---------- Samenvatting -----------------------------------------------------
-% De samenvatting in de hoofdtaal van het document
 
 \chapter*{\IfLanguageName{dutch}{Samenvatting}{Abstract}}
 
-\lipsum[1-4]
+Security Operations Centers (SOC’s) worden dagelijks geconfronteerd met een grote hoeveelheid security-events en alerts afkomstig van uiteenlopende databronnen. Traditionele Security Information and Event Management (SIEM)-systemen steunen voornamelijk op rule-based correlatie, wat beperkingen vertoont bij complexe en meerlagige aanvalspatronen. Hierdoor ontstaat een hoge werkdruk voor analisten en een verhoogd risico op gemiste dreigingen.
+\newline
+\newline
+Deze bachelorproef onderzoekt hoe graph-based machine learning (GBML) kan worden toegepast om security-events automatisch te correleren en te chainen. Door events en entiteiten te modelleren als nodes en hun onderlinge relaties als edges binnen een graafstructuur, wordt beoogd om contextuele verbanden expliciet te maken en multi-stage aanvalspatronen beter te detecteren.
+\newline
+\newline
+Op basis van een literatuurstudie worden de beperkingen van traditionele correlatiemechanismen geanalyseerd en worden graph-gebaseerde technieken onderzocht als mogelijke oplossing. Vervolgens werd een methodologie uitgewerkt en geïmplementeerd in de vorm van een proof-of-concept, waarbij security-events worden omgezet naar een grafenstructuur en geanalyseerd met een Relational Graph Convolutional Network (R-GCN).
+\newline
+\newline
+De aanpak werd geëvalueerd op zowel een gelabelde intrusion detection dataset als een meer realistische dataset met enterprise security-events. Voor de eerste dataset werd een multiclass classificatiemodel opgebouwd, waarbij een accuracy van 0.8738 en een weighted F1-score van 0.8744 werd behaald. Deze resultaten tonen aan dat het model in staat is om verschillende aanvalstypes met een relatief hoge nauwkeurigheid te onderscheiden.
+\newline
+\newline
+Voor de tweede dataset werd de focus verlegd naar het rangschikken van verdachte events en het reconstrueren van chains. Hoewel klassieke classificatiemetrics hier minder representatief bleken door sterke class imbalance en beperkte labels, tonen de resultaten aan dat het model in staat is om relevante events te prioritiseren en te groeperen tot samenhangende structuren.
+\newline
+\newline
+De resultaten tonen aan dat graph-based machine learning een flexibele en contextgerichte benadering biedt voor het analyseren van security-events. In situaties met duidelijke labels kan het model ingezet worden voor nauwkeurige classificatie, terwijl in realistischere scenario’s de nadruk verschuift naar prioritisatie en chaining. Deze aanpak vormt een belangrijke stap richting meer contextuele en efficiënte detectiesystemen binnen een SOC-context.

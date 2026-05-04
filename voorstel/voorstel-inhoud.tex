@@ -14,17 +14,16 @@
 
 \section{Inleiding}%
 \label{sec:inleiding}
-\newline
 \colorbox{yellow}{(Probleemstelling)} Met de stijgende hoeveelheid online datacollectie en digitale diensten neemt ook de behoefte aan snelle en betrouwbare cybersecurity toe. Aangezien er veel meer cyberaanvallen zijn, dankzij o.a. AI attacks \autocite{Henderson2024}, worden de huidige systemen zoals Security Information and Event Management (SIEM) overspoeld met verschillende security-alerts zoals DNS, assets, logs, vulnerabilities, etc. 
 Deze security-events worden vaak apart geanalyseerd, waardoor de verschillende verbanden tussen deze events verloren gaan. Om complexe aanvalspatronen te bestuderen en herkennen moeten security-events samen geanalyseerd worden om de detectie sneller en potentieel foutloos te maken. 
 \newline
 \newline
 In deze paper worden Graph-based machine \newline learning technieken gebruikt om verbanden te zoeken tussen deze losse events, zodat cybersecurity bedrijven dit kunnen inschakelen in real-time dreigingsdetectie. Hiervoor wordt ook een proof-of-concept opgesteld met als doelstelling een snel en accuraat kettingdetectiesysteem op te stellen.
 
-\subsection{Onderzoeksvragen en doelstellingen}
+\subsection{Onderzoeksvragen en \newline doelstellingen}
 \label{sec:onderzoeksvragen}
 
-Het doel van deze bachelorproef is om te onderzoeken hoe graph-based machine learning kan ingezet worden om security-events automatisch te linken en te correleren, zodat dreigingen sneller en nauwkeuriger kunnen worden herkend.  
+Het doel van deze bachelorproef is om te onderzoeken hoe graph-based machine learning kan ingezet worden om security-events automatisch te linken en te correleren, zodat dreigingen sneller en nauwkeuriger kunnen worden herkend. \newline 
 Hieruit volgt de centrale onderzoeksvraag:
 \newline
 \newline
@@ -44,16 +43,13 @@ De deelvragen worden opgesplitst in twee domeinen: het \emph{probleemdomein}, da
         \item Welke relaties en kenmerken zijn cruciaal om events semantisch met elkaar te verbinden (bijvoorbeeld tijd, asset of type dreiging)?
         \item Wat zijn de voor- en nadelen van bestaande methodes zoals rule-based correlatie of SIEM-regels?
 \end{enumerate}
-\newline
     \textbf{\colorbox{yellow}{Deelvragen} met betrekking tot het oplossingsdomein:}
     \begin{enumerate}
         \item Welke graph-based machine learning-\newline technieken (zoals Graph Neural Networks of graph clustering) zijn het meest geschikt om relaties tussen events te leren?
         \item Hoe kan een dataset van security-events worden voorbereid en omgezet in een grafenstructuur met nodes en edges?
-        \item Hoe kan de performantie van het chaining-model worden geëvalueerd met objectieve metrics (zoals precision, recall etc.)?
+        \item Hoe kan de performantie van het chaining-model worden geëvalueerd met objectieve metrics (zoals precision, recall, etc.)?
         \item Hoe kan het prototype visueel worden gemaakt om aanvalspaden en verbanden tussen events duidelijk voor te stellen?
 \end{enumerate}
-\newline
-\newline
 Het beantwoorden van deze vragen moet leiden tot een werkend proof-of-concept dat aantoont hoe graph-based ML kan bijdragen aan snellere en contextueel rijkere dreigingsdetectie binnen bedrijfsomgevingen.
 
 
@@ -69,11 +65,9 @@ Security Information and Event Management (SIEM) systemen worden vandaag het vaa
 Daarnaast zorgt het hoge aantal alerts dat SOC’s moeten opvolgen voor wat in de literatuur “alert fatigue” genoemd wordt: analisten krijgen te veel meldingen en missen daardoor soms echte dreigingen \autocite{Makhinova2025}.  
 \newline
 \newline
-\newline
 Daarom besluiten veel studies dat de klassieke systemen niet goed genoeg zijn voor moderne, contextuele dreigingsdetectie.
 \newline
-\newline
-\subsection{AI en Machine Learning voor Threat Correlatie}
+\subsection{AI en Machine Learning voor \newline Threat Correlatie}
 Om de beperkingen van rule-based systemen te verbeteren, gebruiken steeds meer organisaties machine learning (ML) en deep learning voor security-analyse \autocite{Gamage2025}.  
 \newline
 ML kan patronen ontdekken in grote datasets die mensen of vaste regels vaak niet zien. Daardoor kunnen aanvallen sneller en nauwkeuriger herkend worden. In recente reviews blijkt dat AI-technieken (zoals supervised ML en deep learning) vaak betere resultaten halen dan klassieke methodes, vooral bij complexe of grote hoeveelheden data \autocite{IBM2024}.  
@@ -81,27 +75,21 @@ ML kan patronen ontdekken in grote datasets die mensen of vaste regels vaak niet
 \newline
 Uit de literatuur blijkt ook dat bepaalde ML-
 \newline
-modellen, zoals convolutionele (CNN) en recurrente netwerken (RNN/LSTM), goed presteren bij het herkennen van opeenvolgende patronen of afwijkingen. Toch hebben ze moeite om relaties te vinden tussen verschillende entiteiten (zoals hosts of alerts) die structureel met elkaar verbonden zijn \autocite{Gamage2025}. Dat zorgt ervoor dat er steeds meer onderzoek komt naar graph-gebaseerde modellen.
-\newline
+modellen, zoals convolutionele (CNN) en recurrente netwerken (RNN/LSTM), goed presteren bij het herkennen van opeenvolgende patronen of afwijkingen. Toch hebben ze moeite om relaties te vinden tussen verschillende entiteiten \newline (zoals hosts of alerts) die structureel met elkaar verbonden zijn \autocite{Gamage2025}. Dat zorgt ervoor dat er steeds meer onderzoek komt naar graph-gebaseerde modellen.
 \newline
 \subsection{Graph-Based Machine Learning en Graph Neural Networks}
 Graph-based machine learning (GBML)
 \newline
 en vooral Graph Neural Networks (GNNs) worden gezien als veelbelovende methodes om relaties tussen security-events te leren. In deze aanpak worden entiteiten zoals hosts, gebruikers of alerts voorgesteld als knooppunten (nodes), en hun relaties als verbindingen (edges) in een graaf. Op die manier kan het model verbanden leren die in traditionele ML-modellen moeilijk te zien zijn \autocite{Kanka2022}.  
 \newline
-\newline
-Recente onderzoeken tonen aan dat GNN’s beter kunnen omgaan met complexere correlaties die traditionele systemen vaak missen. Zo beschrijft Brooks et al. een GNN-model dat relaties tussen logbronnen en gedragingen leert en daarmee gecoördineerde cyberaanvallen kan herkennen met hogere precisie en betrouwbaarheid dan klassieke correlatie-engines \autocite{Brooks2025}.  
+Recente onderzoeken tonen aan dat GNN’s beter kunnen omgaan met complexere correlaties die traditionele systemen vaak missen. Zo beschrijft Brooks et al. een GNN-model dat relaties tussen logbronnen en gedragingen leert en daarmee gecoördineerde cyberaanvallen kan herkennen met hogere precisie en betrouwbaarheid dan klassieke correlatie-engines \autocite{Brooks2025}. \newline  
 Andere studies gebruiken graph-matching technieken om alerts te groeperen in graph clusters, wat helpt om meldingen beter te begrijpen en te prioriteren \autocite{Vitulyova2025}.
-\newline
-\newline
-\subsection{Hybride en Geavanceerde Benaderingen}
+\subsection{Hybride en Geavanceerde \newline Benaderingen}
 Sommige onderzoeken bouwen verder op \newline graph-modellen door ze te combineren met andere ML-technieken. Vitulyova et al. tonen bijvoorbeeld een hybride model dat GNN’s combineert met Long Short-Term Memory (LSTM) netwerken. Zo kunnen ze zowel de structuur (relaties tussen entiteiten) als de tijdsvolgorde van een aanval meenemen \autocite{Vitulyova2025}. Hun resultaten tonen dat zulke modellen erg goed kunnen voorspellen hoe een aanval zich ontwikkelt.  
 \newline
 \newline
 Een recente literatuurstudie laat zien dat er vandaag veel soorten correlatiemethoden bestaan van rule-based tot statistisch en AI-gebaseerd maar dat er nog steeds een tekort is aan oplossingen die schaalbaar én contextueel zijn voor real-time detectie \autocite{Kanka2022}. Dit ondersteunt het idee dat graph-gebaseerde en hybride AI- \newline aanpakken een belangrijk onderwerp blijven voor toekomstig onderzoek.
-\newline
-\newline
-\subsection{Knelpunten en Onderzoeksopeningen}
+\subsection{Knelpunten en \newline Onderzoeksopeningen}
 Een vaak vermeld probleem in de literatuur is het evenwicht tussen prestatie en uitlegbaarheid. Sommige deep learning-modellen halen sterke resultaten, maar hun werking is moeilijk te \newline begrijpen. Dat is een nadeel in SOC-omgevingen waar beslissingen moeten kunnen worden verantwoord \autocite{Gamage2025}.  
 Daarnaast is er nog de uitdaging van schaalbaarheid, want moderne bedrijven genereren enorme hoeveelheden data die snel en efficiënt moeten worden verwerkt.
 \newline
@@ -136,12 +124,12 @@ Daarnaast wordt onderzocht welke datavelden nodig zijn (bijv. tijdstip, host, IP
 \newline
 \newline
 Er wordt een kleine literatuurstudie uitgevoerd om te bekijken hoe events momenteel gecorreleerd worden in Security Operations Centers (SOC’s) en welke beperkingen er bestaan bij rule-based systemen.  
-Ook worden bestaande frameworks zoals MITRE ATT\&CK en NIST SP 800-215 geraadpleegd, die beschrijven hoe aanvalspatronen en threat intelligence kunnen worden gekoppeld \autocite{MITRE2024, NIST2023}.  
+Ook worden bestaande frameworks zoals MITRE ATT\&CK en NIST SP 800-215 geraadpleegd, die beschrijven hoe aanvalspatronen en threat intelligence kunnen worden gekoppeld \newline \autocite{MITRE2024, NIST2023}.  
 \newline
 \newline
-Deze fase resulteert in een \emph{requirements-document} waarin staat welke data en relaties het model moet ondersteunen en welke meetbare doelen (zoals detectiesnelheid of precisie) zullen gebruikt worden tijdens de evaluatie.
+Deze fase resulteert in een \emph{requirements-} \newline \emph{document} waarin staat welke data en relaties het model moet ondersteunen en welke meetbare doelen (zoals detectiesnelheid of precisie) zullen gebruikt worden tijdens de evaluatie.
 
-\subsection{Fase 2: Ontwikkeling van het proof-of-concept}
+\subsection{Fase 2: Ontwikkeling van het \newline proof-of-concept}
 De tweede fase bestaat uit de praktische uitwerking van het prototype.  
 Er wordt een synthetische dataset opgebouwd die echte security-events nabootst, zonder bedrijfsgevoelige data te gebruiken.  
 Elke gebeurtenis wordt voorgesteld als een node, en relaties (zoals gedeeld IP, tijdsvenster of asset) worden als edges toegevoegd.  
@@ -156,7 +144,6 @@ De implementatie gebeurt in \textbf{Python}, met behulp van libraries zoals:
     \item \textbf{Pandas / NumPy}: voor data cleaning en preprocessing;
     \item \textbf{Matplotlib / Plotly}: voor visualisatie van \newline chaining-resultaten.
 \end{itemize}
-\newline
 Daarnaast wordt gekeken naar open-source dreigingsdata (zoals MISP of MITRE ATT\&CK-samples) om realistische eventtypes te simuleren.  
 Het prototype zal de chaining visualiseren als een interactief netwerk waarin nodes (events) met elkaar verbonden worden.  
 \newline
@@ -170,7 +157,6 @@ In de derde fase wordt de performantie van het model geëvalueerd met objectieve
     \item \textbf{F1-score}: om de balans tussen precisie en volledigheid te evalueren;
     \item \textbf{Tijd-tot-detectie}: om de snelheid van chaining te meten.
 \end{itemize}
-\newline
 De resultaten worden vergeleken met een eenvoudige baseline (bijv. rule-based correlatie of random linking) om te zien of GBML effectief betere resultaten oplevert.  
 Er wordt ook gekeken naar uitlegbaarheid: kan het model verduidelijken waarom twee events aan elkaar gelinkt worden, of blijft dit een “black box”?  
 \newline
@@ -200,7 +186,7 @@ De aanpak is meetbaar en reproduceerbaar, met focus op technische uitvoering, wa
 \newline
 
 %---------- Verwachte resultaten ----------------------------------------------
-\section{Conclusie en verwachte resultaten}
+\section{Conclusie en verwachte \newline resultaten}
 \label{sec:conclusie}
 
 Uit dit onderzoek wordt verwacht dat graph-based machine learning (GBML) een duidelijke meerwaarde kan bieden voor het automatisch linken van security-events.  

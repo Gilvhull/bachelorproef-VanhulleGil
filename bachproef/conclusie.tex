@@ -1,10 +1,36 @@
-%%=============================================================================
+
+        %%=============================================================================
 %% Conclusie
 %%=============================================================================
 
 \chapter{Conclusie}%
 \label{ch:conclusie}
 
+In deze bachelorproef werd onderzocht in welke mate graph-based machine learning kan bijdragen aan het automatisch correleren en chainen van security-events. De centrale onderzoeksvraag richtte zich op het verbeteren van de detectie van complexe aanvalspatronen ten opzichte van traditionele, rule-based benaderingen.
+\newline
+\newline
+De resultaten tonen aan dat graph-based modellen een duidelijke meerwaarde bieden, afhankelijk van de context waarin ze worden toegepast. In een gecontroleerde omgeving met gelabelde data blijkt het model in staat om verschillende aanvalstypes met een hoge nauwkeurigheid te onderscheiden. De behaalde resultaten tonen dat relationele informatie effectief benut kan worden om de detectieperformantie te ondersteunen en dat het model relevante patronen leert uit de onderliggende data.
+\newline
+\newline
+Tegelijkertijd tonen de experimenten op minder gestructureerde data aan dat klassieke classificatiemetrics niet altijd volstaan om de performantie van een model correct te evalueren. In datasets met sterke class imbalance en beperkte labels verschuift de focus van pure classificatie naar het prioritiseren en contextualiseren van events. De lagere macro F1-score in deze context bevestigt dat het detecteren van minder frequente, verdachte events uitdagend blijft wanneer supervisie beperkt is.
+\newline
+\newline
+De resultaten tonen echter ook dat de graph-based aanpak in deze situaties een alternatieve meerwaarde biedt. Door events te rangschikken op basis van hun vermoedelijke relevantie en deze te groeperen tot samenhangende chains, ontstaat een meer bruikbaar en interpreteerbaar overzicht. Dit sluit beter aan bij de werking van een Security Operations Center, waar analisten werken met geprioritiseerde lijsten van alerts en waar het leggen van verbanden tussen gebeurtenissen essentieel is.
+\newline
+\newline
+De chainingresultaten tonen dat het model in staat is om relaties tussen events te reconstrueren op basis van gedeelde entiteiten en temporele samenhang. Hoewel deze chains geen volledige garantie bieden op het correct reconstrueren van volledige aanvalspaden, vormen ze wel een belangrijke stap richting het automatisch identificeren van multi-stage aanvallen. In plaats van afzonderlijke alerts ontstaat een meer samenhangend beeld van mogelijke incidenten.
+\newline
+\newline
+Op basis van deze bevindingen kan geconcludeerd worden dat graph-based machine learning een geschikte aanpak is voor het analyseren van security-events, vooral wanneer context en relaties tussen gebeurtenissen een belangrijke rol spelen. De combinatie van detectie, ranking en chaining maakt het mogelijk om flexibel om te gaan met verschillende types data en evaluatiecontexten.
+\newline
+\newline
+Tegelijkertijd moeten de beperkingen van deze aanpak erkend worden. De performantie van het model is sterk afhankelijk van de kwaliteit en structuur van de beschikbare data. Class imbalance, beperkte labels en heterogene databronnen blijven belangrijke uitdagingen. Daarnaast brengt het werken met grafen extra complexiteit met zich mee, zowel op vlak van preprocessing als schaalbaarheid.
+\newline
+\newline
+Verder onderzoek kan zich richten op het verbeteren van de chaining-algoritmes, bijvoorbeeld door meer geavanceerde temporele modellen te integreren of door bijkomende contextuele informatie te gebruiken. Ook het uitbreiden van evaluatiemethodes, zodat deze beter aansluiten bij realistische operationele scenario’s, vormt een interessante piste.
+\newline
+\newline
+Samenvattend toont deze bachelorproef aan dat graph-based machine learning een veelbelovende benadering is voor het analyseren en correleren van security-events. Hoewel er nog uitdagingen bestaan, biedt deze aanpak een duidelijk kader om verder te evolueren naar meer contextuele en schaalbare detectiesystemen.
 % TODO: Trek een duidelijke conclusie, in de vorm van een antwoord op de
 % onderzoeksvra(a)g(en). Wat was jouw bijdrage aan het onderzoeksdomein en
 % hoe biedt dit meerwaarde aan het vakgebied/doelgroep? 
@@ -14,5 +40,7 @@
 % Heeft het onderzoek geleid tot nieuwe vragen die uitnodigen tot verder 
 %onderzoek?
 
-\lipsum[76-80]
+
+
+
 

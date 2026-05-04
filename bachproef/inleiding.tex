@@ -5,32 +5,78 @@
 \chapter{\IfLanguageName{dutch}{Inleiding}{Introduction}}%
 \label{ch:inleiding}
 
-De inleiding moet de lezer net genoeg informatie verschaffen om het onderwerp te begrijpen en in te zien waarom de onderzoeksvraag de moeite waard is om te onderzoeken. In de inleiding ga je literatuurverwijzingen beperken, zodat de tekst vlot leesbaar blijft. Je kan de inleiding verder onderverdelen in secties als dit de tekst verduidelijkt. Zaken die aan bod kunnen komen in de inleiding~\autocite{Pollefliet2011}:
+%De inleiding moet de lezer net genoeg informatie verschaffen om het onderwerp te begrijpen en in te zien waarom de onderzoeksvraag de moeite waard is om te onderzoeken. In de inleiding ga je literatuurverwijzingen beperken, zodat de tekst vlot leesbaar blijft. Je kan de inleiding verder onderverdelen in secties als dit de tekst verduidelijkt. Zaken die aan bod kunnen komen in de inleiding~\autocite{Pollefliet2011}:
 
-\begin{itemize}
-  \item context, achtergrond
-  \item afbakenen van het onderwerp
-  \item verantwoording van het onderwerp, methodologie
-  \item probleemstelling
-  \item onderzoeksdoelstelling
-  \item onderzoeksvraag
-  \item \ldots
-\end{itemize}
+De toenemende digitalisering van bedrijfsprocessen en de groeiende afhankelijkheid van cloud- en netwerkinfrastructuren zorgen voor een exponentiële stijging in het aantal gegenereerde security-events. Security Operations Centers (SOC’s) worden dagelijks geconfronteerd met duizenden tot miljoenen meldingen afkomstig van logsystemen, firewalls, intrusion detection systemen en endpoint monitoring tools.
+\newline
+\newline
+Hoewel Security Information and Event Management (SIEM)-systemen deze gebeurtenissen centraliseren en analyseren, blijft het een uitdaging om verbanden te leggen tussen deze grote hoeveelheden data. Moderne cyberaanvallen bestaan zelden uit één geïsoleerde actie, maar uit een keten van onderling gerelateerde gebeurtenissen. Het correct identificeren van deze verbanden is essentieel om complexe aanvalspatronen tijdig te detecteren.
+\newline
+\newline
+In de praktijk worden veel security-events afzonderlijk beoordeeld of gecorreleerd via vooraf gedefinieerde regels. Deze rule-based aanpak werkt goed voor gekende aanvalspatronen, maar botst op beperkingen bij complexe, meerlagige aanvallen waarbij de relaties tussen events minder expliciet zijn. Dit leidt tot een hoge werkdruk voor SOC-analisten en verhoogt het risico op gemiste dreigingen. Bovendien zorgt het grote aantal alerts vaak voor zogenaamde “alert fatigue”, waarbij belangrijke signalen verloren kunnen gaan tussen minder relevante meldingen. Tegen deze achtergrond ontstaat de nood aan een meer contextuele en relationele benadering van dreigingsdetectie. Graph-based machine learning (GBML) biedt hier potentieel, omdat deze techniek relaties tussen entiteiten expliciet kan modelleren in de vorm van grafen. In plaats van events los te analyseren, worden ze voorgesteld als knooppunten (nodes) met onderlinge verbindingen (edges), waardoor aanvalsketens beter zichtbaar worden. 
+
+%\begin{itemize}
+ % \item context, achtergrond
+  %\item afbakenen van het onderwerp
+  %\item verantwoording van het onderwerp, methodologie
+%  \item probleemstelling
+ % \item onderzoeksdoelstelling
+  %\item onderzoeksvraag
+  %\item \ldots
+%\end{itemize}
 
 \section{\IfLanguageName{dutch}{Probleemstelling}{Problem Statement}}%
 \label{sec:probleemstelling}
 
-Uit je probleemstelling moet duidelijk zijn dat je onderzoek een meerwaarde heeft voor een concrete doelgroep. De doelgroep moet goed gedefinieerd en afgelijnd zijn. Doelgroepen als ``bedrijven,'' ``KMO's'', systeembeheerders, enz.~zijn nog te vaag. Als je een lijstje kan maken van de personen/organisaties die een meerwaarde zullen vinden in deze bachelorproef (dit is eigenlijk je steekproefkader), dan is dat een indicatie dat de doelgroep goed gedefinieerd is. Dit kan een enkel bedrijf zijn of zelfs één persoon (je co-promotor/opdrachtgever).
+Voor cybersecuritybedrijven en hun SOC-analisten vormt het efficiënt correleren van security-events een concrete operationele uitdaging. Het manueel analyseren van grote hoeveelheden alerts is tijdrovend en foutgevoelig, terwijl klassieke SIEM-regels onvoldoende flexibel zijn om nieuwe of complexe aanvalspatronen correct te herkennen.
+\newline
+\newline
+Het centrale probleem van deze bachelorproef is dan ook het gebrek aan een geautomatiseerde methode die security-events niet enkel individueel analyseert, maar ook hun onderlinge relaties kan leren en benutten om aanvalspatronen te reconstrueren.
+
+%Uit je probleemstelling moet duidelijk zijn dat je onderzoek een meerwaarde heeft voor een concrete doelgroep. De doelgroep moet goed gedefinieerd en afgelijnd zijn. Doelgroepen als ``bedrijven,'' ``KMO's'', systeembeheerders, enz.~zijn nog te vaag. Als je een lijstje kan maken van de personen/organisaties die een meerwaarde zullen vinden in deze bachelorproef (dit is eigenlijk je steekproefkader), dan is dat een indicatie dat de doelgroep goed gedefinieerd is. Dit kan een enkel bedrijf zijn of zelfs één persoon (je co-promotor/opdrachtgever).
 
 \section{\IfLanguageName{dutch}{Onderzoeksvraag}{Research question}}%
 \label{sec:onderzoeksvraag}
-
-Wees zo concreet mogelijk bij het formuleren van je onderzoeksvraag. Een onderzoeksvraag is trouwens iets waar nog niemand op dit moment een antwoord heeft (voor zover je kan nagaan). Het opzoeken van bestaande informatie (bv. ``welke tools bestaan er voor deze toepassing?'') is dus geen onderzoeksvraag. Je kan de onderzoeksvraag verder specifiëren in deelvragen. Bv.~als je onderzoek gaat over performantiemetingen, dan 
+\textbf{Vanuit deze probleemstelling wordt de volgende hoofdonderzoeksvraag geformuleerd:}
+\newline
+\newline
+Hoe kan graph-based machine learning worden toegepast om security-events automatisch te chainen en te correleren, zodat complexe aanvalspatronen sneller en accurater worden gedetecteerd dan met traditionele rule-based systemen?
+\newline
+\newline
+Om deze vraag te beantwoorden, worden zowel het probleemdomein als het oplossingsdomein onderzocht.
+\newline
+\newline
+\textbf{Binnen het probleemdomein wordt nagegaan:}
+\begin{itemize}
+    \item Welke types security-events en datavelden relevant zijn voor chaining.
+    \item Hoe events momenteel worden gecorreleerd binnen SOC-omgevingen.
+    \item Welke beperkingen bestaan bij rule-based correlatie en klassieke SIEM-systemen.
+    \item Welke relaties (tijd, asset, IP-adres, type dreiging) cruciaal zijn om events semantisch te verbinden.
+\end{itemize}
+\textbf{Binnen het oplossingsdomein wordt onderzocht:}
+\begin{itemize}
+    \item Welke graph-based machine learning technieken geschikt zijn voor event correlatie.
+    \item Hoe security-events kunnen worden omgezet naar een grafenstructuur.
+    \item Hoe de performantie van een chaining-model objectief kan worden geëvalueerd.
+    \item In welke mate een graph-based aanpak betere detectieresultaten oplevert dan een baseline rule-based methode.
+\end{itemize}
+%Wees zo concreet mogelijk bij het formuleren van je onderzoeksvraag. Een onderzoeksvraag is trouwens iets waar nog niemand op dit moment een antwoord heeft (voor zover je kan nagaan). Het opzoeken van bestaande informatie (bv. ``welke tools bestaan er voor deze toepassing?'') is dus geen onderzoeksvraag. Je kan de onderzoeksvraag verder specifiëren in deelvragen. Bv.~als je onderzoek gaat over performantiemetingen, dan 
 
 \section{\IfLanguageName{dutch}{Onderzoeksdoelstelling}{Research objective}}%
 \label{sec:onderzoeksdoelstelling}
+Het doel van deze bachelorproef is het ontwikkelen en evalueren van een proof-of-concept waarin security-events worden gemodelleerd als een graafstructuur en geanalyseerd met graph-based machine learning technieken, zoals Graph Neural Networks.
+\newline
+\newline
+\textbf{Het prototype moet aantonen in welke mate deze aanpak:}
+\begin{itemize}
+\item een hogere detectienauwkeurigheid bereikt.
 
-Wat is het beoogde resultaat van je bachelorproef? Wat zijn de criteria voor succes? Beschrijf die zo concreet mogelijk. Gaat het bv.\ om een proof-of-concept, een prototype, een verslag met aanbevelingen, een vergelijkende studie, enz.
+\item complexere aanvalsketens correct kan reconstrueren.
+
+\item een meer contextueel overzicht biedt voor SOC-analisten.
+\end{itemize}
+De performantie wordt geëvalueerd aan de hand van objectieve metrics zoals precision, recall en F1-score, en vergeleken met een eenvoudige rule-based baseline.
+%Wat is het beoogde resultaat van je bachelorproef? Wat zijn de criteria voor succes? Beschrijf die zo concreet mogelijk. Gaat het bv.\ om een proof-of-concept, een prototype, een verslag met aanbevelingen, een vergelijkende studie, enz.
 
 \section{\IfLanguageName{dutch}{Opzet van deze bachelorproef}{Structure of this bachelor thesis}}%
 \label{sec:opzet-bachelorproef}
@@ -38,7 +84,6 @@ Wat is het beoogde resultaat van je bachelorproef? Wat zijn de criteria voor suc
 % Het is gebruikelijk aan het einde van de inleiding een overzicht te
 % geven van de opbouw van de rest van de tekst. Deze sectie bevat al een aanzet
 % die je kan aanvullen/aanpassen in functie van je eigen tekst.
-
 De rest van deze bachelorproef is als volgt opgebouwd:
 
 In Hoofdstuk~\ref{ch:stand-van-zaken} wordt een overzicht gegeven van de stand van zaken binnen het onderzoeksdomein, op basis van een literatuurstudie.

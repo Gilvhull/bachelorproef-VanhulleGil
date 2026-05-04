@@ -1,51 +1,197 @@
 \chapter{\IfLanguageName{dutch}{Stand van zaken}{State of the art}}%
 \label{ch:stand-van-zaken}
 
+\section{Traditionele Event Correlatie en SIEM}
+
+Security Information and Event Management (SIEM)-systemen vormen al jaren de grondlegging van Security Operations Centers. Hun kernfunctie bestaat uit het verzamelen, normaliseren en correleren van security-events afkomstig uit uiteenlopende bronnen zoals firewalls, intrusion detection systemen, endpoints en applicatielogs.
+\newline
+\newline
+Traditionele SIEM-architecturen steunen vooral op rule-based correlatie, waarbij vooraf gedefinieerde regels bepalen welke combinaties van gebeurtenissen verdacht zijn. Deze regels worden manueel opgesteld door security-analisten en zijn gebaseerd op gekende aanvalspatronen of beleidsinbreuken \autocite{Upadhyay2025}. Voorbeelden hiervan zijn meerdere mislukte loginpogingen binnen een korte tijdspanne of ongeautoriseerde toegang tot kritieke systemen.
+\newline
+\newline
+Naast rule-based correlatie worden ook threshold-based en time-based technieken toegepast. Threshold-based correlatie genereert een alert wanneer een bepaalde drempelwaarde wordt overschreden, bijvoorbeeld een abnormale stijging in netwerkverkeer. Time-based correlatie analyseert sequenties van gebeurtenissen binnen een specifieke tijdsperiode om mogelijke multi-stage aanvallen te detecteren \autocite{Upadhyay2025}.
+\newline
+\newline
+Hoewel deze technieken structuur bieden en relatief eenvoudig te implementeren zijn, vertonen ze fundamentele beperkingen. Doordat correlatieregels gebaseerd zijn op gekende aanvalspatronen, reageren traditionele SIEM-systemen pas wanneer een gebeurtenis overeenkomt met een vooraf gedefinieerd patroon. Nieuwe of aangepaste aanvalstechnieken die niet expliciet in de regels zijn opgenomen, blijven vaak onopgemerkt \autocite{Upadhyay2025}.
+\newline
+\newline
+Bovendien leidt de exponentiële groei van logdata tot een aanzienlijke toename van gegenereerde alerts. Onderzoek toont aan dat organisaties gemiddeld geconfronteerd worden met ongeveer 10.000 security-events per dag, waarvan traditionele systemen gemiddeld 300 alerts genereren \autocite{Sivakumaran2025}. In andere studies wordt zelfs gesproken over meer dan 11.000 alerts per dag binnen grotere omgevingen \autocite{Sivakumaran2025}. Deze overvloed aan meldingen creëert een aanzienlijke werkdruk voor SOC-teams.
+\newline
+\newline
+Het probleem wordt verder versterkt door hoge false positive rates. In traditionele monitoringomgevingen kan het aandeel foutieve meldingen oplopen tot 71\%, met als gevolg dat securityteams slechts een beperkt deel van de gegenereerde alerts effectief kunnen onderzoeken \autocite{Sivakumaran2025}. Daarnaast spenderen analisten gemiddeld 25 minuten aan de initiële triage van één alert, wat resulteert in een aanzienlijke operationele belasting \autocite{Sivakumaran2025}.
+\newline
+\newline
+De heterogeniteit van dataformaten en databronnen bemoeilijkt bovendien een correcte correlatie van gebeurtenissen. SIEM-systemen moeten data verwerken in uiteenlopende formaten zoals Syslog, JSON en XML, waarbij verschillen in granulariteit en ontbrekende context de interpretatie van events bemoeilijken \autocite{Omoseebi2022}. Inconsistente tijdstempels vormen een bijkomend probleem; onderzoek toont aan dat nauwkeurige tijdssynchronisatie binnen 75 milliseconden de correlatieprecisie met 41\% kan verbeteren \autocite{Sivakumaran2025}. Zonder dergelijke synchronisatie kunnen gebeurtenissen verkeerd geordend worden, wat leidt tot foutieve conclusies of gemiste incidenten.
+\newline
+\newline
+Daarnaast vereist het onderhouden van complexe correlatieregels voortdurende manuele aanpassingen. Naarmate het aantal databronnen en aanvalstechnieken toeneemt, stijgt ook de complexiteit van de correlatielogica \autocite{Omoseebi2022}. Foutief geconfigureerde regels kunnen resulteren in zowel false positives als false negatives, wat de effectiviteit van het SIEM-systeem ondermijnt.
+\newline
+\newline
+Om deze beperkingen te adresseren werd Complex Event Processing (CEP) verder ontwikkeld als een mechanisme om security-events niet langer geïsoleerd te behandelen, maar te correleren binnen hun temporele en causale context. CEP-gebaseerde benaderingen laten toe om gebeurtenissen uit meerdere databronnen in real-time te aggregeren en te structureren in samenhangende aanvalsscenario’s.
+\newline
+\newline
+Recent onderzoek naar geavanceerde alertcorrelatie binnen SOC-omgevingen benadrukt echter dat het louter detecteren van complexe patronen onvoldoende is wanneer het aantal gegenereerde alerts de analysecapaciteit overstijgt. Garcia et al. stellen dat grote organisaties geconfronteerd worden met een overweldigend volume aan security alerts, wat leidt tot verzadiging van SOC-teams en vertraagde respons op kritieke incidenten \autocite{Garcia2025ROSCA}.
+\newline
+\newline
+In plaats van individuele alerts te analyseren, wordt in hun werk een graph-gebaseerde correlatie- en prioritisatiemethode voorgesteld waarbij gerelateerde alerts automatisch worden geaggregeerd tot hogere “cases”, gestructureerd volgens het MITRE ATT\&CK kill chain model. Door alerts te contextualiseren op basis van gedeelde attributen, temporele volgorde en aanvalstactieken, kan een beter inzicht worden verkregen in multi-stage aanvallen en wordt de situational awareness van analisten verhoogd \autocite{Garcia2025ROSCA}.
+\newline
+\newline
+Hoewel dergelijke correlatiemechanismen de interpretatie en prioritisatie van alerts aanzienlijk verbeteren, blijft ook deze aanpak afhankelijk van vooraf gedefinieerde classificaties en structurele mappings binnen frameworks zoals MITRE ATT\&CK. Dit toont aan dat er nood is aan flexibelere analysetechnieken die niet uitsluitend steunen op vooraf gemodelleerde aanvalspatronen.
+\newline
+\newline
+Deze evolutie zorgt ervoor dat machine learning steeds vaker geïntegreerd wordt in SIEM- en SOC-architecturen, waarbij gedragsmodellering en anomaliedetectie worden ingezet om automatisch afwijkingen van normaal gedrag te identificeren en zo ook onbekende of evoluerende dreigingen te detecteren.
+
+
+\section{Machine Learning voor Threat Detection}
+
+De beperkingen van rule-based correlatie en statische SIEM-regels hebben geleid tot een toenemende integratie van machine learning (ML) binnen Security Operations Centers. In plaats van uitsluitend vooraf gedefinieerde aanvalspatronen te detecteren, laten ML-technieken toe om gedragsafwijkingen en complexe combinaties van events automatisch te identificeren. Recente studies tonen aan dat ML vooral wordt ingezet om alert overload en hoge false positive rates aan te pakken, en om nieuwe aanvalstechnieken sneller te detecteren. \autocite{Upadhyay2025}.
+\newline
+\newline
+Binnen threat detection worden doorgaans twee hoofdbenaderingen onderscheiden: supervised en unsupervised learning. Bij supervised learning wordt een model getraind op gelabelde data (bijvoorbeeld ‘benign’ versus ‘malicious’) en leert het een classificatiefunctie die nieuwe observaties kan beoordelen. Hoewel deze aanpak hoge accuraatheid kan opleveren bij voldoende representatieve trainingsdata, is dergelijke data in cybersecuritycontexten vaak beperkt, onvolledig of sterk onevenwichtig verdeeld. In intrusion detection-omgevingen wordt bovendien vastgesteld dat modelperformantie sterk afhankelijk is van datasetkeuze en dataclass imbalance. Dit is een belangrijke uitdaging binnen SOC’s, waar echte incidenten relatief zeldzaam zijn in vergelijking met normaal gedrag.
+\newline
+\newline
+Unsupervised en semi-supervised benaderingen worden daarom frequent toegepast voor anomaliedetectie. Hierbij leert het systeem eerst een representatie van normaal gedrag en worden significante afwijkingen gemarkeerd als potentieel verdacht. Deze aanpak sluit aan bij realistische SOC-situaties waarin labels schaars zijn en nieuwe dreigingen nog geen gekende signatures hebben. Tegelijk introduceert dit een belangrijke trade-off: niet elke statistische afwijking is noodzakelijk kwaadaardig, wat het risico op false positives verhoogt \autocite{Upadhyay2025}.
+\newline
+\newline
+Naast de detectielogica speelt ook de operationele dimensie een cruciale rol. SOC-teams worden niet enkel geconfronteerd met detectie, maar met triage, prioritisatie en opvolging. Monitoringstudies tonen aan dat hoge alertvolumes en foutieve meldingen leiden tot een significante reductie van analysecapaciteit, waarbij slechts een beperkt percentage alerts diepgaand onderzocht kan worden \autocite{Sivakumaran2025}. Hierdoor verschuift de focus van ML-toepassingen steeds vaker van louter ‘detecteren’ naar het ondersteunen van contextuele verrijking, groepering en intelligente prioritisatie van meldingen.
+\newline
+\newline
+Recente ontwikkelingen in graph-gebaseerde AI/ML-benaderingen tonen bovendien aan dat klassieke vector-gebaseerde ML-modellen beperkingen vertonen wanneer gebeurtenissen geïsoleerd worden behandeld. Kanka et al. stellen dat security-events inherent relationeel zijn en dat het modelleren van onderlinge afhankelijkheden tussen entiteiten zoals gebruikers, IP-adressen en systemen de detectiekwaliteit aanzienlijk kan verhogen \autocite{Kanka2022}. Door relaties expliciet te representeren, kunnen verborgen patronen en multi-stage aanvalsketens beter worden geïdentificeerd.
+\newline
+\newline
+Tot slot blijven er belangrijke praktische uitdagingen bij ML in security, waaronder concept drift (gedrag evolueert doorheen de tijd), beperkte explainability en heterogene databronnen die feature engineering bemoeilijken. Verschillen in logformaten, ontbrekende context en inconsistente tijdstempels beïnvloeden rechtstreeks de performantie van ML-modellen \autocite{Omoseebi2022}. Dit onderstreept de nood aan analysetechnieken die niet enkel individuele events evalueren, maar ook de bredere context en relaties tussen gebeurtenissen expliciet meenemen.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{ontology.png}
+    \caption[Security Ontology Model]{
+        Conceptueel model voor het structureren van security-events en entiteiten binnen een knowledge graph (gebaseerd op \textcite{Kanka2022}).
+    }
+    \label{fig:kanka-ontology}
+\end{figure}
+
+\section{Graph-Based Machine Learning}
+
+Waar klassieke ML-modellen vertrekken vanuit individuele events als onafhankelijke observaties, vertrekt graph-based machine learning vanuit het expliciet modelleren van relaties tussen entiteiten. In cybersecuritycontexten kunnen gebruikers, endpoints, IP-adressen, applicaties en events worden voorgesteld als nodes, terwijl interacties zoals netwerkcommunicatie, loginpogingen of procesuitvoering worden gemodelleerd als edges \autocite{Kanka2022}.
+\newline
+\newline
+Deze relationele aanpak past goed bij hoe cyberaanvallen in de praktijk verlopen, die zelden uit één geïsoleerd event bestaan, maar doorgaans meerdere stappen omvatten, verspreid over verschillende systemen en tijdsvensters. Door security-data om te zetten naar een grafenstructuur wordt het mogelijk om aanvalspaden te reconstrueren als samenhangende subgraphs in plaats van losse alerts.
+\newline
+\newline
+Graph-based benaderingen maken het mogelijk om topologische eigenschappen van het netwerk te benutten. Kenmerken zoals node degree, centrality, community-structuren en padlengtes kunnen worden geëxtraheerd als input voor machine learning-modellen. Kanka et al. benadrukken dat dergelijke topologische representaties verborgen afhankelijkheden zichtbaar maken en het detecteren van gecoördineerde aanvalscampagnes, laterale beweging en privilege-escalatie vergemakkelijken \autocite{Kanka2022}.
+\newline
+\newline
+Binnen deze context vormen Graph Neural Networks (GNN’s), Graph Convolutional Networks (GCN’s) en Graph Attention Networks (GAT’s) een belangrijke familie van modellen. In tegenstelling tot klassieke deep learning-architecturen aggregeren GNN’s informatie over buurknopen, waardoor niet enkel de eigenschappen van een individueel event worden geleerd, maar ook de context waarin dit event zich bevindt \autocite{Kanka2022}. Daardoor kunnen verbanden worden gevonden tussen gebeurtenissen die op het eerste zicht niets met elkaar te maken lijken te hebben.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{ML_detection_pipeline.png}
+    \caption[Graph-Based ML Detection Pipeline]{
+        Overzicht van een graph-based security detectiepipeline waarbij security-events eerst worden verzameld, vervolgens omgezet naar een grafenstructuur, waarna topologische features worden geëxtraheerd en Graph Neural Networks (GNN’s) worden toegepast voor dreigingsdetectie. 
+        Deze workflow illustreert hoe relationele modellering leidt tot verbeterde correlatie en identificatie van multi-stage aanvalscampagnes (gebaseerd op \textcite{Kanka2022}).
+    }
+    \label{fig:ml-graph-pipeline}
+\end{figure}
+Daarnaast spelen knowledge graphs een ondersteunende rol in het structureren en contextualiseren van security-events. Door semantische relaties te integreren — bijvoorbeeld via mapping naar MITRE ATT\&CK-tactieken of door koppeling met threat intelligence feeds — kan een rijkere representatie van aanvalscampagnes worden opgebouwd \autocite{Kanka2022}. Deze combinatie van relationele modellering en machine learning versterkt zowel detectie als interpretatie.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{knowledge_graph.png}
+    \caption[Security Knowledge Graph Structure]{
+        Voorbeeld van een security knowledge graph waarin entiteiten zoals kwetsbaarheden (CVE), zwakheden (CWE) en aanvalspatronen (CAPEC) semantisch met elkaar verbonden worden. 
+        Door dergelijke relaties expliciet te modelleren ontstaat een contextuele representatie die aanvalsketens zichtbaar maakt en correlatie tussen ogenschijnlijk afzonderlijke events faciliteert (gebaseerd op \textcite{Kanka2022}).
+    }
+    \label{fig:security-knowledge-graph}
+\end{figure}
+Tegelijk brengt graph-based ML bijkomende uitdagingen met zich mee. De performantie van het model hangt sterk af van (1) hoe events worden gemodelleerd als nodes en edges, (2) welke relationele en temporele features worden geëxtraheerd en (3) hoe schaalbaarheid wordt gegarandeerd bij grote grafen met miljoenen nodes en edges. Volgens Kanka et al. vereist dit optimalisatietechnieken zoals graph sampling, pruning en gedistribueerde verwerking om real-time analyse mogelijk te maken \autocite{Kanka2022}.
+\newline
+\newline
+Een doordachte methodologie voor data-normalisatie, verrijking en grafconstructie is daarom essentieel. Pas wanneer de grafenstructuur correct is opgebouwd, kunnen modellen objectief geëvalueerd worden aan de hand van metrics zoals precision, recall, F1-score en detectietijd, wat cruciaal is voor praktische inzet binnen SOC-omgevingen.
+\section{Onderzoeksopeningen}
+De literatuur toont een duidelijke evolutie van rule-based correlatie naar ML-ondersteunde analyse, en verder naar graph-gebaseerde modellen die relatie en context expliciet modelleren. Toch blijven er open onderzoeksvragen wanneer men graph-based technieken wil toepassen op realistische SOC-data.
+\newline
+\newline
+Ten eerste is er geen uniforme manier om te bepalen welke eventvelden en contextvariabelen essentieel zijn om chaining mogelijk te maken. In SOC-logs zijn velden zoals host, user, asset-ID, tijdstip en netwerkcontext vaak aanwezig, maar niet consistent genormaliseerd of verrijkt. Dit bemoeilijkt een eenduidige definitie van nodes en edges en vormt een directe uitdaging voor graph-constructie \autocite{Omoseebi2022}.
+\newline
+\newline
+Ten tweede blijft de link tussen correlatie en operationele meerwaarde cruciaal. Veel technieken verbeteren detectie, maar SOC’s hebben ook nood aan prioritisatie en “casevorming” zodat analisten niet verdrinken in losse alerts. Graph-gebaseerde correlatie zoals in ROSCA toont dat aggregeren tot cases de situational awareness kan verhogen, maar het blijft een open vraag hoe deze aanpak zich vertaalt naar automatische chaining van security-events in het algemeen, los van één specifieke mapping of dataset \autocite{Garcia2025ROSCA}.
+\newline
+\newline
+Ten derde is evaluatie vaak een knelpunt: chaining en correlatie zijn niet enkel classificatieproblemen. De vraag is niet alleen “is dit alert verdacht?”, maar “welke events horen bij elkaar, in welke volgorde, en vormen zij samen een aanvalspad?”. Dit vereist geschikte evaluatiemetrics (bv. precision/recall op edges of op reconstructed cases) en een duidelijke manier om te bepalen wat als correcte detectie geldt in datasets waar weinig labels beschikbaar zijn.
+\newline
+\newline
+Deze openingen sluiten rechtstreeks aan bij de centrale onderzoeksvraag van deze bachelorproef, namelijk hoe graph-based machine learning kan worden toegepast om security-events automatisch te chainen en te correleren zodat complexe aanvalspatronen sneller en accurater worden gedetecteerd. Op basis daarvan worden in het vervolg de deelvragen rond probleemdomein en oplossingsdomein verder uitgewerkt in de methodologie en het prototype-ontwerp.
+
+
+
+\section{Relational Graph Convolutional Networks}
+
+Binnen graph-based machine learning bestaan verschillende modellen om relationele data te verwerken. In deze bachelorproef wordt gebruik gemaakt van een Relational Graph Convolutional Network (R-GCN), een uitbreiding van klassieke Graph Convolutional Networks die specifiek ontworpen is voor grafen met meerdere soorten relaties.
+\newline
+\newline
+In tegenstelling tot standaard GCN’s, die alle edges op dezelfde manier behandelen, maakt een R-GCN onderscheid tussen verschillende relatietypes. Dit is vooral relevant in cybersecuritycontexten, waar verschillende soorten interacties voorkomen, zoals netwerkverbindingen, authenticatie-events en procesrelaties.
+\newline
+\newline
+Door per relatietype aparte parameters te leren, kan het model beter inspelen op de semantiek van de onderliggende data. Hierdoor wordt het mogelijk om complexere patronen te detecteren in grafen met heterogene structuur \autocite{Schlichtkrull2017}.
+
+\section{Uitdagingen bij cybersecurity datasets}
+
+Een belangrijke uitdaging binnen cybersecurityonderzoek is het gebrek aan representatieve en consistente datasets. Veel publiek beschikbare datasets bevatten gestructureerde en gelabelde data, maar verschillen sterk van realistische operationele omgevingen.
+\newline
+\newline
+In praktijk bevatten securitydatasets vaak een sterke class imbalance, waarbij kwaadaardige events slechts een klein deel van de data vormen. Daarnaast zijn labels vaak onvolledig of onnauwkeurig, wat het trainen en evalueren van machine learning modellen bemoeilijkt.
+\newline
+\newline
+Dit leidt ertoe dat klassieke evaluatiemetrics, zoals accuracy, niet altijd een correct beeld geven van de performantie van een model. In dergelijke contexten wordt het belangrijk om alternatieve evaluatiemethodes te overwegen, zoals ranking-gebaseerde metrics of contextuele analyse van events \autocite{Ring2019}.
+
+\section{Temporal en multi-stage aanvalsanalyse}
+
+Moderne cyberaanvallen bestaan vaak uit meerdere opeenvolgende stappen, verspreid over verschillende systemen en tijdsvensters. Het analyseren van dergelijke multi-stage aanvallen vereist technieken die niet enkel individuele events evalueren, maar ook hun temporele en causale relaties.
+\newline
+\newline
+Graph-based benaderingen bieden hier een voordeel doordat ze toelaten om events te modelleren als verbonden structuren. Door temporele informatie en relaties tussen entiteiten te combineren, wordt het mogelijk om aanvalspaden te reconstrueren en complexere patronen te identificeren \autocite{Friji2024}.
 % Tip: Begin elk hoofdstuk met een paragraaf inleiding die beschrijft hoe
 % dit hoofdstuk past binnen het geheel van de bachelorproef. Geef in het
 % bijzonder aan wat de link is met het vorige en volgende hoofdstuk.
 
 % Pas na deze inleidende paragraaf komt de eerste sectiehoofding.
 
-Dit hoofdstuk bevat je literatuurstudie. De inhoud gaat verder op de inleiding, maar zal het onderwerp van de bachelorproef *diepgaand* uitspitten. De bedoeling is dat de lezer na lezing van dit hoofdstuk helemaal op de hoogte is van de huidige stand van zaken (state-of-the-art) in het onderzoeksdomein. Iemand die niet vertrouwd is met het onderwerp, weet nu voldoende om de rest van het verhaal te kunnen volgen, zonder dat die er nog andere informatie moet over opzoeken \autocite{Pollefliet2011}.
+%Dit hoofdstuk bevat je literatuurstudie. De inhoud gaat verder op de inleiding, maar zal het onderwerp van de bachelorproef *diepgaand* uitspitten. De bedoeling is dat de lezer na lezing van dit hoofdstuk helemaal op de hoogte is van de huidige stand van zaken (state-of-the-art) in het onderzoeksdomein. Iemand die niet vertrouwd is met het onderwerp, weet nu voldoende om de rest van het verhaal te kunnen volgen, zonder dat die er nog andere informatie moet over opzoeken \autocite{Pollefliet2011}.
 
-Je verwijst bij elke bewering die je doet, vakterm die je introduceert, enz.\ naar je bronnen. In \LaTeX{} kan dat met het commando \texttt{$\backslash${textcite\{\}}} of \texttt{$\backslash${autocite\{\}}}. Als argument van het commando geef je de ``sleutel'' van een ``record'' in een bibliografische databank in het Bib\LaTeX{}-formaat (een tekstbestand). Als je expliciet naar de auteur verwijst in de zin (narratieve referentie), gebruik je \texttt{$\backslash${}textcite\{\}}. Soms is de auteursnaam niet expliciet een onderdeel van de zin, dan gebruik je \texttt{$\backslash${}autocite\{\}} (referentie tussen haakjes). Dit gebruik je bv.~bij een citaat, of om in het bijschrift van een overgenomen afbeelding, broncode, tabel, enz. te verwijzen naar de bron. In de volgende paragraaf een voorbeeld van elk.
+%Je verwijst bij elke bewering die je doet, vakterm die je introduceert, enz.\ naar je bronnen. In \LaTeX{} kan dat met het commando \texttt{$\backslash${textcite\{\}}} of \texttt{$\backslash${autocite\{\}}}. Als argument van het commando geef je de ``sleutel'' van een ``record'' in een bibliografische databank in het Bib\LaTeX{}-formaat (een tekstbestand). Als je expliciet naar de auteur verwijst in de zin (narratieve referentie), gebruik je \texttt{$\backslash${}textcite\{\}}. Soms is de auteursnaam niet expliciet een onderdeel van de zin, dan gebruik je \texttt{$\backslash${}autocite\{\}} (referentie tussen haakjes). Dit gebruik je bv.~bij een citaat, of om in het bijschrift van een overgenomen afbeelding, broncode, tabel, enz. te verwijzen naar de bron. In de volgende paragraaf een voorbeeld van elk.
 
-\textcite{Knuth1998} schreef een van de standaardwerken over sorteer- en zoekalgoritmen. Experten zijn het erover eens dat cloud computing een interessante opportuniteit vormen, zowel voor gebruikers als voor dienstverleners op vlak van informatietechnologie~\autocite{Creeger2009}.
+%\textcite{Knuth1998} schreef een van de standaardwerken over sorteer- en zoekalgoritmen. Experten zijn het erover eens dat cloud computing een interessante opportuniteit vormen, zowel voor gebruikers als voor dienstverleners op vlak van informatietechnologie~\autocite{Creeger2009}.
 
-Let er ook op: het \texttt{cite}-commando voor de punt, dus binnen de zin. Je verwijst meteen naar een bron in de eerste zin die erop gebaseerd is, dus niet pas op het einde van een paragraaf.
+%Let er ook op: het \texttt{cite}-commando voor de punt, dus binnen de zin. Je verwijst meteen naar een bron in de eerste zin die erop gebaseerd is, dus niet pas op het einde van een paragraaf.
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.8\textwidth]{grail.jpg}
-  \caption[Voorbeeld figuur.]{\label{fig:grail}Voorbeeld van invoegen van een figuur. Zorg altijd voor een uitgebreid bijschrift dat de figuur volledig beschrijft zonder in de tekst te moeten gaan zoeken. Vergeet ook je bronvermelding niet!}
-\end{figure}
+%\begin{figure}
+ % \centering
+  %\includegraphics[width=0.8\textwidth]{grail.jpg}
+  %\caption[Voorbeeld figuur.]{\label{fig:grail}Voorbeeld van invoegen van een figuur. Zorg altijd voor een uitgebreid bijschrift dat de figuur volledig beschrijft zonder in de tekst te moeten gaan zoeken. Vergeet ook je bronvermelding niet!}
+%\end{figure}
 
-\begin{listing}
-  \begin{minted}{python}
-    import pandas as pd
-    import seaborn as sns
+%\begin{listing}
+ % \begin{minted}{python}
+  %  import pandas as pd
+   % import seaborn as sns
 
-    penguins = sns.load_dataset('penguins')
-    sns.relplot(data=penguins, x="flipper_length_mm", y="bill_length_mm", hue="species")
-  \end{minted}
-  \caption[Voorbeeld codefragment]{Voorbeeld van het invoegen van een codefragment.}
-\end{listing}
+    %penguins = sns.load_dataset('penguins')
+    %sns.relplot(data=penguins, x="flipper_length_mm", y="bill_length_mm", hue="species")
+  %\end{minted}
+  %\caption[Voorbeeld codefragment]{Voorbeeld van het invoegen van een codefragment.}
+%\end{listing}
 
-\lipsum[7-20]
+%\lipsum[7-20]
 
-\begin{table}
-  \centering
-  \begin{tabular}{lcr}
-    \toprule
-    \textbf{Kolom 1} & \textbf{Kolom 2} & \textbf{Kolom 3} \\
-    $\alpha$         & $\beta$          & $\gamma$         \\
-    \midrule
-    A                & 10.230           & a                \\
-    B                & 45.678           & b                \\
-    C                & 99.987           & c                \\
-    \bottomrule
-  \end{tabular}
-  \caption[Voorbeeld tabel]{\label{tab:example}Voorbeeld van een tabel.}
-\end{table}
+%\begin{table}
+ % \centering
+  %\begin{tabular}{lcr}
+   % \toprule
+    %\textbf{Kolom 1} & \textbf{Kolom 2} & \textbf{Kolom 3} \\
+    %$\alpha$         & $\beta$          & $\gamma$         \\
+    %\midrule
+    %A                & 10.230           & a                \\
+    %B                & 45.678           & b                \\
+    %C                & 99.987           & c                \\
+    %\bottomrule
+  %\end{tabular}
+  %\caption[Voorbeeld tabel]{\label{tab:example}Voorbeeld van een tabel.}
+%\end{table}
 
