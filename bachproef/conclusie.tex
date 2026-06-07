@@ -1,36 +1,46 @@
-
-        %%=============================================================================
+%%=============================================================================
 %% Conclusie
 %%=============================================================================
 
 \chapter{Conclusie}%
 \label{ch:conclusie}
 
-In deze bachelorproef werd onderzocht in welke mate graph-based machine learning kan bijdragen aan het automatisch correleren en chainen van security-events. De centrale onderzoeksvraag richtte zich op het verbeteren van de detectie van complexe aanvalspatronen ten opzichte van traditionele, rule-based benaderingen.
+In deze bachelorproef werd onderzocht hoe graph-based machine learning kan toegepast worden voor het automatisch correleren en groeperen van security-events. De centrale onderzoeksvraag richtte zich op de vraag of een graph-based aanpak een meerwaarde kan bieden ten opzichte van traditionele eventgebaseerde analyse en rule-based correlatie.
 \newline
 \newline
-De resultaten tonen aan dat graph-based modellen een duidelijke meerwaarde bieden, afhankelijk van de context waarin ze worden toegepast. In een gecontroleerde omgeving met gelabelde data blijkt het model in staat om verschillende aanvalstypes met een hoge nauwkeurigheid te onderscheiden. De behaalde resultaten tonen dat relationele informatie effectief benut kan worden om de detectieperformantie te ondersteunen en dat het model relevante patronen leert uit de onderliggende data.
+Op basis van de uitgevoerde experimenten kan vastgesteld worden dat graph-based machine learning effectief bruikbaar is voor het modelleren van relaties tussen security-events. Door events niet afzonderlijk te analyseren maar expliciet verbanden op te nemen tussen entiteiten, ontstaat bijkomende context die kan gebruikt worden tijdens detectie en verdere analyse.
 \newline
 \newline
-Tegelijkertijd tonen de experimenten op minder gestructureerde data aan dat klassieke classificatiemetrics niet altijd volstaan om de performantie van een model correct te evalueren. In datasets met sterke class imbalance en beperkte labels verschuift de focus van pure classificatie naar het prioritiseren en contextualiseren van events. De lagere macro F1-score in deze context bevestigt dat het detecteren van minder frequente, verdachte events uitdagend blijft wanneer supervisie beperkt is.
+De experimenten op CIC-IDS2018 tonen dat het gebruikte R-GCN model verschillende aanvalstypes van elkaar kan onderscheiden binnen een supervised setting. De behaalde accuracy en F1-scores tonen aan dat de relationele representatie van events bruikbaar is voor classificatie wanneer voldoende labels beschikbaar zijn.
 \newline
 \newline
-De resultaten tonen echter ook dat de graph-based aanpak in deze situaties een alternatieve meerwaarde biedt. Door events te rangschikken op basis van hun vermoedelijke relevantie en deze te groeperen tot samenhangende chains, ontstaat een meer bruikbaar en interpreteerbaar overzicht. Dit sluit beter aan bij de werking van een Security Operations Center, waar analisten werken met geprioritiseerde lijsten van alerts en waar het leggen van verbanden tussen gebeurtenissen essentieel is.
+De resultaten op LANL tonen echter dat dezelfde aanpak anders geïnterpreteerd moet worden in minder gestructureerde omgevingen. Door het ontbreken van volledige labels evolueert de rol van het model van pure classificatie naar het ondersteunen van prioritisatie en chaining. Hoewel de accuracy hoog bleef, toonde de lagere macro F1-score aan dat verdachte events moeilijker te detecteren blijven binnen sterk onevenwichtige datasets.
 \newline
 \newline
-De chainingresultaten tonen dat het model in staat is om relaties tussen events te reconstrueren op basis van gedeelde entiteiten en temporele samenhang. Hoewel deze chains geen volledige garantie bieden op het correct reconstrueren van volledige aanvalspaden, vormen ze wel een belangrijke stap richting het automatisch identificeren van multi-stage aanvallen. In plaats van afzonderlijke alerts ontstaat een meer samenhangend beeld van mogelijke incidenten.
+Hierdoor werd duidelijk dat klassieke classificatiemetrics niet altijd volstaan om de performantie van securitymodellen te evalueren. Vooral bij weakly supervised data wordt de bruikbaarheid van een model sterker bepaald door ranking, prioritisatie en de mogelijkheid om verbanden tussen events te reconstrueren.
 \newline
 \newline
-Op basis van deze bevindingen kan geconcludeerd worden dat graph-based machine learning een geschikte aanpak is voor het analyseren van security-events, vooral wanneer context en relaties tussen gebeurtenissen een belangrijke rol spelen. De combinatie van detectie, ranking en chaining maakt het mogelijk om flexibel om te gaan met verschillende types data en evaluatiecontexten.
+Naast detectie werd daarom ook gekeken naar threat chaining. De chainingresultaten tonen dat events gegroepeerd kunnen worden op basis van gedeelde entiteiten en temporele relaties. Hierdoor ontstaat een meer contextueel beeld waarbij losse voorspellingen worden samengebracht tot mogelijke onderzoekscases.
 \newline
 \newline
-Tegelijkertijd moeten de beperkingen van deze aanpak erkend worden. De performantie van het model is sterk afhankelijk van de kwaliteit en structuur van de beschikbare data. Class imbalance, beperkte labels en heterogene databronnen blijven belangrijke uitdagingen. Daarnaast brengt het werken met grafen extra complexiteit met zich mee, zowel op vlak van preprocessing als schaalbaarheid.
+Op basis van de deelvragen kunnen volgende conclusies worden geformuleerd:
+\begin{itemize}
+    \item Security-events kunnen omgezet worden naar een bruikbare grafenstructuur door entiteiten en relaties expliciet te modelleren.
+    
+    \item Graph-based machine learning is inzetbaar voor zowel classificatie als contextuele analyse.
+    
+    \item De evaluatiecontext bepaalt sterk hoe de performantie geïnterpreteerd moet worden.
+    
+    \item Chaining biedt bijkomende meerwaarde boven individuele eventdetectie.
+\end{itemize}
+
+Tegelijkertijd werden ook beperkingen vastgesteld. De performantie blijft sterk afhankelijk van de kwaliteit van de beschikbare data. Vooral class imbalance, beperkte labels en heterogene databronnen vormen belangrijke uitdagingen. Daarnaast brengt graphconstructie extra complexiteit met zich mee op vlak van preprocessing en schaalbaarheid.
 \newline
 \newline
-Verder onderzoek kan zich richten op het verbeteren van de chaining-algoritmes, bijvoorbeeld door meer geavanceerde temporele modellen te integreren of door bijkomende contextuele informatie te gebruiken. Ook het uitbreiden van evaluatiemethodes, zodat deze beter aansluiten bij realistische operationele scenario’s, vormt een interessante piste.
+Verder onderzoek kan zich richten op het verbeteren van de chaininglogica, het uitbreiden van weak supervision technieken en het integreren van bijkomende contextuele data. Daarnaast kan onderzocht worden hoe dergelijke graphmodellen verder toegepast kunnen worden binnen operationele omgevingen waar assetinformatie, dreigingsinformatie en eventdata gecombineerd beschikbaar zijn.
 \newline
 \newline
-Samenvattend toont deze bachelorproef aan dat graph-based machine learning een veelbelovende benadering is voor het analyseren en correleren van security-events. Hoewel er nog uitdagingen bestaan, biedt deze aanpak een duidelijk kader om verder te evolueren naar meer contextuele en schaalbare detectiesystemen.
+Samenvattend toont deze bachelorproef aan dat graph-based machine learning een bruikbare basis vormt voor meer contextuele analyse van security-events. De combinatie van classificatie, prioritisatie en chaining biedt mogelijkheden om traditionele eventanalyse uit te breiden met relationele informatie en context.
 % TODO: Trek een duidelijke conclusie, in de vorm van een antwoord op de
 % onderzoeksvra(a)g(en). Wat was jouw bijdrage aan het onderzoeksdomein en
 % hoe biedt dit meerwaarde aan het vakgebied/doelgroep? 

@@ -5,384 +5,444 @@
 \chapter{\IfLanguageName{dutch}{Methodologie}{Methodology}}%
 \label{ch:methodologie}
 
-In dit hoofdstuk wordt toegelicht hoe het onderzoek praktisch werd uitgevoerd. De methodologie vertrekt vanuit de centrale onderzoeksvraag: hoe kan graph-based machine learning worden toegepast om security-events automatisch te chainen en te correleren, zodat complexe aanvalspatronen sneller en accurater kunnen worden gedetecteerd?
+In dit hoofdstuk wordt toegelicht hoe het onderzoek praktisch werd uitgevoerd en hoe de verschillende experimenten werden opgebouwd. De methodologie vertrekt vanuit de centrale onderzoeksvraag: hoe graph-based machine learning kan worden toegepast om security-events automatisch te correleren en te groeperen tot mogelijke aanvalsketens.
 \newline
 \newline
-Het onderzoek werd uitgewerkt als een proof-of-concept waarin security-events worden omgezet naar een graafstructuur. Binnen deze graaf worden gebeurtenissen, entiteiten en hun onderlinge relaties voorgesteld als nodes en edges. Vervolgens wordt een graph-based machine learning model gebruikt om verdachte events te classificeren en om verbanden tussen events te reconstrueren.
+De uitwerking bestaat uit een opeenvolgend proces waarbij ruwe security-events eerst worden voorbereid en omgezet naar een graafstructuur. Vervolgens wordt een relationeel graphmodel getraind waarna de output gebruikt wordt voor verdere analyse, ranking en threat chaining.
 \newline
 \newline
-Tijdens de uitvoering werd gekozen voor een gefaseerde aanpak. Eerst werd een supervised model opgebouwd op basis van CIC-IDS2018, omdat deze dataset duidelijke labels bevat voor meerdere aanvalstypes. Daarna werd de aanpak uitgebreid met LANL-data, waarbij de focus minder lag op klassieke classificatie en meer op ranking en chaining van events. Tot slot werd de beschikbare Secutec JSON-data gebruikt om na te gaan in welke mate het ontwikkelde graphschema aansluit bij TAM-achtige bedrijfsdata.
+De volledige pipeline bestaat uit datasetselectie, preprocessing, grafconstructie, modeltraining, evaluatie en chaining.
 
 \section{Onderzoeksopzet}
 
-De bachelorproef combineert literatuuronderzoek met een praktische implementatie. Het technische luik bestaat uit drie onderdelen: een supervised classificatie-experiment op CIC-IDS2018, een threat chaining experiment op LANL-data en een transferanalyse op basis van Secutec JSON-data.
+Het onderzoek werd opgebouwd rond twee datasets met een verschillende doelstelling.
 \newline
 \newline
-De reden voor deze opsplitsing is dat geen enkele dataset alle vereiste eigenschappen bevat. CIC-IDS2018 bevat duidelijke attack labels en is daardoor geschikt om een model te trainen voor multiclass attack detection. LANL bevat daarentegen meer realistische enterprise-events en temporele relaties, maar beschikt niet over dezelfde duidelijke attack labels. De Secutec-data sluit inhoudelijk het best aan bij het uiteindelijke toepassingsdomein, maar is te beperkt in omvang om als volwaardige trainingsdataset te gebruiken.
+CIC-IDS2018 werd gebruikt als gecontroleerde benchmark voor supervised multiclass classificatie. Deze dataset bevat labels voor verschillende aanvalstypes en laat toe om de performantie van het model te evalueren in een klassieke detectiesetting.
 \newline
 \newline
-Daarom werd de volgende experimentele strategie gebruikt:
-
+LANL werd gebruikt als meer realistische enterprise dataset. Deze bevat flow-, authenticatie-, DNS- en procesdata, maar beschikt niet over volledige labels per event. Hierdoor werd LANL behandeld als een weakly supervised probleem waarbij de nadruk verschuift van pure classificatie naar ranking en chaining.
+\newline
+\newline
+Hoewel dezelfde modelarchitectuur gebruikt werd voor beide experimenten, verschilt de evaluatiecontext:
 \begin{itemize}
-    \item CIC-IDS2018 werd gebruikt als hoofdexperiment voor supervised multiclass detectie.
-    \item LANL werd gebruikt om temporele relaties, ranking en threat chaining te onderzoeken.
-    \item Secutec JSON-data werd gebruikt om de toepasbaarheid van het graphschema op TAM-achtige data te evalueren.
+    \item CIC-IDS2018: supervised multiclass classificatie;
+    \item LANL: suspicious event scoring, ranking en threat chaining.
 \end{itemize}
-
-Deze aanpak laat toe om zowel de detectiekwaliteit als de praktische bruikbaarheid van graph-based machine learning binnen een SOC-context te beoordelen.
 
 \section{Datasetselectie}
 
-Voor de experimenten werden drie databronnen gebruikt. Elke databron had een andere rol binnen het onderzoek.
-
 \subsection{CIC-IDS2018}
 
-CIC-IDS2018 werd gebruikt als primaire dataset voor supervised multiclass classificatie. Deze dataset bevat netwerkflowdata met labels voor verschillende aanvalstypes, zoals brute force, botnetverkeer, DDoS-aanvallen, DoS-aanvallen, infiltratie en SQL-injectie. Hierdoor is deze dataset geschikt om na te gaan of een graph-based model aanvalstypes van elkaar kan onderscheiden.
+CIC-IDS2018 werd gebruikt als primaire dataset voor multiclass attack detection.
 \newline
 \newline
-De dataset werd niet gebruikt als directe representatie van Secutec TAM-data. De beschikbare features in CIC-IDS2018 bestaan vooral uit netwerkflowkenmerken, terwijl TAM-data eerder bestaat uit assets, threats, technische oplossingen, statussen, business value en JSONB-contextvelden. De overlap tussen beide databronnen zit dus niet op kolomniveau, maar op conceptueel niveau: tijd, entiteiten, netwerkgedrag en relaties tussen events.
+De dataset bevat netwerkflows met labels voor verschillende aanvalstypes zoals brute force, DDoS, DoS, infiltratie en SQL-injectie. Hierdoor kan onderzocht worden in welke mate het model verschillende aanvalsklassen van elkaar kan onderscheiden.
+\newline
+\newline
+De data bestaat voornamelijk uit flowgebaseerde netwerkfeatures. Hoewel deze dataset geen volledige bedrijfscontext bevat, laat ze wel toe om relationele patronen tussen netwerkgebeurtenissen te modelleren.
+
+\begin{table}[H]
+    \centering
+    \caption{Overzicht van de gebruikte CIC-IDS2018 subset}
+    \label{tab:cic_dataset}
+    
+    \begin{tabular}{p{4cm}p{7cm}}
+        \toprule
+        Kenmerk & Waarde \\
+        \midrule
+        
+        Doel & Multiclass intrusion detection \\
+        
+        Datatype & Netwerkflows \\
+        
+        Voornaamste features &
+        Bron-IP, doel-IP, poorten, protocol, flowkenmerken, tijdsvensters \\
+        
+        Aantal klassen &
+        Benign, DoS, DDoS, Brute Force, SQL Injection, Infiltration \\
+        
+        Leercontext &
+        Supervised multiclass classificatie \\
+        
+        Evaluatiemetrics &
+        Accuracy, Precision, Recall, Macro F1, Weighted F1 \\
+        
+        \bottomrule
+    \end{tabular}
+    
+\end{table}
 
 \subsection{LANL}
 
-De LANL-data werd gebruikt om het aspect threat chaining verder te onderzoeken. In tegenstelling tot CIC-IDS2018 bevat LANL meerdere soorten enterprise-events, zoals flow-, authenticatie-, proces- en DNS-events. Hierdoor leent deze dataset zich beter tot het modelleren van temporele en relationele verbanden tussen events.
+LANL werd gebruikt voor het onderzoeken van threat chaining.
 \newline
 \newline
-De labels in LANL zijn echter minder geschikt voor klassieke supervised classificatie. Daarom werd LANL niet gebruikt als hoofdbenchmark voor attack classification, maar als experiment voor ranking en chain reconstructie. Redteam-informatie werd gebruikt als zwakke vorm van ground truth om verdachte events en relevante entiteiten te identificeren.
-Omdat de enterprise event dataset geen volledige labels per event bevat, werd gebruik gemaakt van zwakke supervisie. Codefragment \ref{code:weak-labels} toont hoe events als verdacht worden beschouwd wanneer ze binnen een bepaald tijdsvenster vallen en een entiteit delen met een gekend redteam-event.
+Deze dataset bevat meerdere types enterprise-events zoals authenticatie-, flow-, DNS- en procesdata. Hierdoor is de dataset geschikter voor het modelleren van temporele en relationele verbanden tussen events.
 \newline
 \newline
-\begin{listing}[H]
-    \begin{minted}{python}
-        def assign_weak_labels(events, redteam, window_sec):
-        labels = np.zeros(len(events), dtype=np.int64)
-        
-        for _, attack in redteam.iterrows():
-        t0 = attack["timestamp"] - pd.Timedelta(seconds=window_sec)
-        t1 = attack["timestamp"] + pd.Timedelta(seconds=window_sec)
-        
-        mask_time = events["timestamp"].between(t0, t1)
-        mask_entity = (
-        (events["src_entity"] == attack["src_computer"]) |
-        (events["dst_entity"] == attack["dst_computer"])
-        )
-        
-        labels[mask_time & mask_entity] = 1
-        
-        events["label"] = labels
-        return events
-    \end{minted}
-    \caption[Zwakke labeling op basis van redteam-events]{Voorbeeld van weak supervision waarbij events als verdacht worden gelabeld op basis van temporele nabijheid en gedeelde entiteiten met redteam-events.}
-    \label{code:weak-labels}
-\end{listing}
+Omdat geen volledige labels beschikbaar zijn, werd gebruik gemaakt van weak supervision op basis van redteam-data. Events die overlap vertonen met redteam-entiteiten en tijdsvensters worden beschouwd als verdachte kandidaat-events.
 
 \begin{table}[H]
     \centering
-    \begin{tabular}{p{3cm}p{4cm}p{5cm}p{3cm}}
+    \caption{Overzicht van de gebruikte LANL eventdata}
+    \label{tab:lanl_dataset}
+    
+    \begin{tabular}{p{4cm}p{7cm}}
         \toprule
-        \textbf{Dataset} & \textbf{Rol in onderzoek} & \textbf{Sterkte} & \textbf{Beperking} \\
+        Kenmerk & Waarde \\
         \midrule
-        CIC-IDS2018 & Supervised multiclass detectie & Duidelijke labels voor meerdere aanvalstypes & Vooral netwerkflowdata, beperkte bedrijfscontext \\
-        LANL & Ranking en threat chaining & Enterprise-events met temporele relaties & Zwakke labels en sterke class imbalance \\
+        
+        Doel &
+        Threat chaining en suspicious event ranking \\
+        
+        Eventtypes &
+        Authenticatie, flow-events, DNS-events en procesdata \\
+        
+        Labeltype &
+        Weak supervision op basis van redteam-overlap \\
+        
+        Relaties &
+        Broncomputer, doelcomputer, tijd, eventtype, poorten \\
+        
+        Uitdagingen &
+        Class imbalance en beperkte labels \\
+        
+        Evaluatiemetrics &
+        Precision@K, Recall@K, Hit@K, chain count \\
+        
         \bottomrule
     \end{tabular}
-    \caption[Overzicht van gebruikte datasets]{Overzicht van de gebruikte datasets en hun rol binnen het onderzoek.}
-    \label{tab:dataset-overzicht}
+    
 \end{table}
+
+\begin{listing}[H]
+    \caption{Weak-label toekenning binnen \texttt{map\_lanl\_to\_generic\_schema}.}
+    \begin{minted}{python}
+        labels = np.zeros(len(events), dtype=np.int64)
+        w = np.timedelta64(int(window_sec), 's')
+        ts = events['timestamp'].values.astype('datetime64[ns]')
+        se = events['src_entity'].astype(str).values
+        de = events['dst_entity'].astype(str).values
+        red_times = redteam['timestamp'].values.astype('datetime64[ns]')
+        red_src = redteam['src_computer'].values
+        red_dst = redteam['dst_computer'].values
+        
+        order = np.argsort(ts)
+        ts_s = ts[order]
+        mode = str(weak_label_mode).lower().strip()
+        
+        for i in range(len(redteam)):
+        t0, t1 = red_times[i] - w, red_times[i] + w
+        lo = int(np.searchsorted(ts_s, t0, side='left'))
+        hi = int(np.searchsorted(ts_s, t1, side='right'))
+        if lo >= hi:
+        continue
+        idx = order[lo:hi]
+        if mode == 'strict':
+        m = (
+        (se[idx] == red_src[i]) & (de[idx] == red_dst[i])
+        ) | (
+        (se[idx] == red_dst[i]) & (de[idx] == red_src[i])
+        )
+        else:
+        m = (
+        (se[idx] == red_src[i]) | (de[idx] == red_src[i])
+        | (se[idx] == red_dst[i]) | (de[idx] == red_dst[i])
+        )
+        labels[idx[m]] = 1
+    \end{minted}
+\end{listing}
+    
 
 \section{Graphconstructie}
 
-Voor elk experiment werd de ruwe data eerst omgezet naar een graafstructuur. Hierbij werden events en relevante contextuele entiteiten voorgesteld als nodes. Relaties tussen deze nodes werden voorgesteld als edges. Op die manier kon het model niet alleen individuele eventkenmerken gebruiken, maar ook de context waarin een event voorkomt.
+Na de selectie van de datasets werden de ruwe events omgezet naar een graafstructuur.
 \newline
 \newline
-Bij CIC-IDS2018 werden netwerkflows voorgesteld als eventnodes. Daarnaast werden entiteiten zoals IP-adressen, poorten, protocollen en tijdsvensters gebruikt als contextnodes. Edges werden toegevoegd op basis van gedeelde netwerkkenmerken en temporele nabijheid. Hierdoor konden events die bijvoorbeeld dezelfde destination port, hetzelfde protocol of een gelijkaardig tijdsvenster delen met elkaar verbonden worden.
+Events en entiteiten worden voorgesteld als nodes, terwijl relaties tussen deze entiteiten worden gemodelleerd als edges.
 \newline
 \newline
-Bij LANL werd een gelijkaardige aanpak gebruikt, maar met een breder eventtype. Flow-, authenticatie-, proces- en DNS-events werden eerst omgezet naar een generiek eventschema. Vervolgens werden relaties gelegd op basis van bron- en doelcomputer, poorten, eventtype en tijd. Voor threat chaining werden vooral temporele relaties en gedeelde entiteiten gebruikt.
+Voor CIC-IDS2018 werden netwerkflows gemodelleerd als eventnodes. Daarnaast werden contextuele entiteiten zoals IP-adressen, poorten, protocollen en tijdsvensters gebruikt om relationele verbanden op te bouwen.
 \newline
 \newline
-Voor Secutec werd het schema vertaald naar TAM-achtige nodes, zoals assets, threats, services, software, personen en technische oplossingen. Relaties werden afgeleid uit de JSON-structuur, bijvoorbeeld tussen een asset en een threat, tussen software en een service, of tussen een persoon en een credential leak.
+Voor LANL werden flow-, authenticatie-, DNS- en proces-events eerst omgezet naar een generiek eventschema. Vervolgens werden relaties gelegd op basis van:
+\begin{itemize}
+    \item bron- en doelcomputer;
+    \item poorten;
+    \item eventtype;
+    \item temporele nabijheid.
+\end{itemize}
+
+Hierdoor ontstaat één gezamenlijke heterogene graaf waarin relationele context expliciet aanwezig blijft.
+
+\section{Preprocessing en leakage-preventie}
+
+Bij graph-based machine learning bestaat het risico dat informatie onbedoeld van train naar test vloeit via gedeelde relaties.
+\newline
+\newline
+Om dit te vermijden werd gewerkt met gescheiden train-, validation- en testdelen.
+\newline
+\newline
+Waar mogelijk werd een tijdsgebaseerde split toegepast zodat het model leert op oudere events en geëvalueerd wordt op latere gebeurtenissen.
+
+\begin{listing}[H]
+    \begin{minted}{python}
+        def chronological_split(
+        df,
+        time_col,
+        train_ratio,
+        val_ratio
+        ):
+        
+        df = df.sort_values(
+        time_col
+        )
+        
+        n = len(df)
+        
+        train_end = int(
+        n * train_ratio
+        )
+        
+        val_end = int(
+        n *
+        (
+        train_ratio +
+        val_ratio
+        )
+        )
+        
+        train_df = df.iloc[
+        :train_end
+        ]
+        
+        val_df = df.iloc[
+        train_end:val_end
+        ]
+        
+        test_df = df.iloc[
+        val_end:
+        ]
+        
+        return (
+        train_df,
+        val_df,
+        test_df
+        )
+    \end{minted}
+    
+    \caption[Tijdsgebaseerde datasplit]
+    {Opsplitsing van events in train-, validation- en testdata.}
+    
+    \label{code:chronological-split}
+\end{listing}
+
+Daarnaast werd bij CIC-IDS2018 gebruik gemaakt van class-aware sampling om dominante klassen minder zwaar te laten doorwegen.
+\newline
+\newline
+Bij LANL werd balancing enkel toegepast op trainingsdata terwijl validation en test hun natuurlijke verdeling behielden.
 
 \section{Modelontwikkeling}
 
-Voor de implementatie werd gekozen voor een Relational Graph Convolutional Network, afgekort R-GCN. Deze keuze sluit aan bij het type data dat in dit onderzoek gebruikt wordt. De grafen bevatten namelijk verschillende soorten nodes en relaties. Een gewone GCN behandelt edges doorgaans op een uniforme manier, terwijl een R-GCN onderscheid kan maken tussen verschillende relatietypes.
+Voor beide experimenten werd gekozen voor een Relational Graph Convolutional Network (R-GCN).
 \newline
 \newline
-Het model werd opgebouwd uit twee R-GCN-lagen, gevolgd door activatiefuncties, dropout en een lineaire classificatielaag. De eerste laag leert een relationele representatie van de nodes op basis van hun features en hun buren in de graaf. De tweede laag verfijnt deze representatie. De laatste laag zet de node-embedding om naar een voorspelling.
+Deze keuze werd gemaakt omdat de grafen verschillende node- en relatietypes bevatten.
 \newline
 \newline
-Voor CIC-IDS2018 werd het model getraind als multiclass classifier. Het doel was om eventnodes toe te wijzen aan één van de aanvalsklassen of aan de benign klasse. Voor LANL werd dezelfde architectuur gebruikt, maar de taak werd anders geïnterpreteerd. Door de zwakke labels lag de nadruk daar niet op perfecte binary classificatie, maar op het rangschikken van verdachte events en het reconstrueren van chains.Codefragment \ref{code:rgcn-model} toont de kern van de gebruikte R-GCN architectuur. Het model gebruikt twee relationele graph convolution lagen, gevolgd door een lineaire classificatielaag. De parameter \texttt{edge\_type} laat toe om verschillende relatietypes in de graaf afzonderlijk te modelleren.
-\newline
-\newline
+Het model bestaat uit twee relationele graph convolution lagen gevolgd door dropout en een lineaire classificatielaag.
+
 \begin{listing}[H]
     \begin{minted}{python}
         class EventRGCN(nn.Module):
-        def __init__(self, in_dim, hidden_dim, num_relations,
-        num_classes, dropout=0.3):
+        
+        def __init__(
+        self,
+        in_dim,
+        hidden_dim,
+        num_relations,
+        num_classes
+        ):
+        
         super().__init__()
-        self.conv1 = RGCNConv(in_dim, hidden_dim, num_relations)
-        self.conv2 = RGCNConv(hidden_dim, hidden_dim, num_relations)
-        self.classifier = nn.Linear(hidden_dim, num_classes)
-        self.dropout = dropout
         
-        def forward(self, x, edge_index, edge_type):
-        x = self.conv1(x, edge_index, edge_type)
-        x = F.relu(x)
-        x = F.dropout(x, p=self.dropout, training=self.training)
+        self.conv1 = RGCNConv(
+        in_dim,
+        hidden_dim,
+        num_relations
+        )
         
-        x = self.conv2(x, edge_index, edge_type)
-        x = F.relu(x)
-        x = F.dropout(x, p=self.dropout, training=self.training)
+        self.conv2 = RGCNConv(
+        hidden_dim,
+        hidden_dim,
+        num_relations
+        )
         
-        return self.classifier(x)
+        self.classifier =
+        nn.Linear(
+        hidden_dim,
+        num_classes
+        )
     \end{minted}
-    \caption[R-GCN modelarchitectuur]{Gebruikte R-GCN architectuur voor eventclassificatie op relationele grafen.}
+    
+    \caption[R-GCN architectuur]
+    {Gebruikte R-GCN modelarchitectuur.}
+    
     \label{code:rgcn-model}
 \end{listing}
-\section{Preprocessing en leakage-preventie}
 
-Omdat securitydatasets vaak sterk onevenwichtig zijn, werd bijzondere aandacht besteed aan preprocessing en datalekken. Een belangrijk risico bij graph-based machine learning is dat informatie onbedoeld van train naar validation of test kan vloeien via edges in één globale graaf. Dit zou leiden tot te optimistische resultaten.
+Voor CIC-IDS2018 werd het model gebruikt voor multiclass classificatie.
 \newline
 \newline
-Om dit te vermijden werd gewerkt met gescheiden train-, validation- en testdelen. Waar mogelijk werd de data tijdsgebaseerd opgesplitst, zodat het model leert op oudere events en geëvalueerd wordt op latere events. Dit sluit beter aan bij een realistische SOC-context, waarin toekomstige events niet beschikbaar zijn tijdens training.
-\newline
-\newline
-Bij CIC-IDS2018 werd een per-label temporele split gebruikt om ervoor te zorgen dat ook zeldzame aanvalsklassen aanwezig bleven in train, validation en test. Daarnaast werden class-aware caps toegepast zodat dominante klassen, zoals benign verkeer, het trainingsproces niet volledig zouden overheersen.
-\newline
-\newline
-Bij LANL werd balancing enkel toegepast op de trainingsdata. Validation en test bleven in hun natuurlijke verdeling behouden. Dit was belangrijk omdat LANL sterk onevenwichtig is en slechts een klein deel van de events via redteam-informatie als verdacht kan worden beschouwd.
-Codefragment \ref{code:chronological-split} toont hoe de data tijdsgebaseerd werd opgesplitst. Deze aanpak voorkomt dat toekomstige events onbedoeld gebruikt worden tijdens training en sluit beter aan bij een realistische detectiecontext.
-\newline
-\newline
-\begin{listing}[H]
-    \begin{minted}{python}
-        def chronological_split(df, time_col, train_ratio, val_ratio):
-        df = df.sort_values(time_col).reset_index(drop=True)
-        n = len(df)
-        
-        train_end = int(n * train_ratio)
-        val_end = int(n * (train_ratio + val_ratio))
-        
-        train_df = df.iloc[:train_end].copy()
-        val_df = df.iloc[train_end:val_end].copy()
-        test_df = df.iloc[val_end:].copy()
-        
-        return train_df, val_df, test_df
-    \end{minted}
-    \caption[Tijdsgebaseerde datasplit]{Tijdsgebaseerde opsplitsing van events in train-, validation- en testdata.}
-    \label{code:chronological-split}
-\end{listing}
-\section{Evaluatie}
-
-De evaluatie werd aangepast aan de rol van elke dataset. Voor CIC-IDS2018 lag de focus op supervised multiclass classificatie. Daarom werden standaardclassificatiemetrics gebruikt, zoals accuracy, precision, recall, weighted F1-score en macro F1-score. De weighted F1-score houdt rekening met de verdeling van de klassen, terwijl de macro F1-score elke klasse even zwaar laat meetellen. Die laatste metric is belangrijk omdat cybersecuritydata vaak sterk onevenwichtig is.
-\newline
-\newline
-Voor LANL werd een andere evaluatie-aanpak gebruikt. De labels zijn daar zwakker en minder volledig dan bij CIC-IDS2018. Een lage attack F1-score betekent in die context niet noodzakelijk dat de graphrepresentatie waardeloos is, maar wel dat klassieke binary classificatie moeilijk is onder zwakke supervisie. Daarom werd LANL vooral geëvalueerd met ranking- en chainingmetrics.
-\newline
-\newline
-De belangrijkste LANL-metrics waren Precision@K, Recall@K en Hit@K. Deze metrics sluiten beter aan bij een SOC-werking, waar analisten vaak niet alle events bekijken, maar eerst een gerangschikte lijst van verdachte events onderzoeken. Daarnaast werden threat chains geëvalueerd op basis van het aantal gevormde chains, de gemiddelde chainlengte en de mate waarin chains redteam-gerelateerde entiteiten bevatten.
-\newline
-\newline
-Voor Secutec werd geen klassieke modelscore berekend. De data werd gebruikt om te beoordelen of het graphschema toepasbaar is op een TAM-achtige omgeving. Hierbij werd gekeken naar het aantal nodes, relaties, assettypes, threattypes en mogelijke chains.
-
-\begin{table}[H]
-    \centering
-    \begin{tabular}{p{3cm}p{5cm}p{6cm}}
-        \toprule
-        \textbf{Dataset} & \textbf{Evaluatiefocus} & \textbf{Gebruikte metrics} \\
-        \midrule
-        CIC-IDS2018 & Multiclass attack detection & Accuracy, weighted F1, macro F1, precision, recall, confusion matrix \\
-        LANL & Ranking en threat chaining & Precision@K, Recall@K, Hit@K, chain count, gemiddelde chainlengte, anchor coverage \\
-        Secutec JSON & Transfer naar TAM-achtige structuur & Graphstatistieken, threat ranking, kandidaat-chains \\
-        \bottomrule
-    \end{tabular}
-    \caption[Evaluatiemetrics per dataset]{Overzicht van de evaluatiemetrics per dataset.}
-    \label{tab:evaluatiemetrics}
-\end{table}
+Voor LANL werd dezelfde architectuur gebruikt, maar werd de output geïnterpreteerd als verdachtheidsscore voor ranking en chaining.
 
 \section{Threat chaining}
 
-Naast classificatie werd ook een threat chaining module uitgewerkt. Het doel van deze module was om niet enkel losse verdachte events te detecteren, maar ook verbanden tussen events te leggen. Dit sluit beter aan bij de manier waarop complexe aanvallen in de praktijk verlopen.
+Na de modeltraining werd een bijkomende chainingstap uitgevoerd.
 \newline
 \newline
-De chaining-aanpak bestaat uit drie stappen. Eerst worden verdachte events geselecteerd op basis van de voorspelde attack probability. Bij LANL werd hiervoor niet enkel een vaste drempel gebruikt, maar ook een top-K selectie. Daardoor kunnen ook events met een relatief lagere score meegenomen worden wanneer ze hoog genoeg gerangschikt zijn binnen de volledige testset.
+Deze chaining gebeurt niet binnen het model zelf, maar als post-processing op de modeloutput.
 \newline
 \newline
-Daarna worden verdachte events met elkaar verbonden wanneer ze relevante kenmerken delen. Voorbeelden hiervan zijn dezelfde broncomputer, dezelfde doelcomputer, dezelfde poort of een beperkte tijdsafstand. Alleen events die temporeel logisch op elkaar volgen, worden als kandidaat-chain beschouwd.
+Verdachte events worden eerst geselecteerd op basis van hun modelscore of rankingpositie.
 \newline
 \newline
-Ten slotte worden de gevormde chains gerangschikt. Hierbij wordt rekening gehouden met de gemiddelde attack probability, het aantal events in de chain, de betrokken entiteiten en de temporele samenhang. Op die manier ontstaat een output die meer lijkt op een case of onderzoekspad voor een SOC-analist, in plaats van een losse lijst met alerts.
-\newline
-\newline
-Een eerste visualisatie vergelijkt de algemene modelperformantie van CIC-IDS2018 en LANL. Deze figuur maakt duidelijk dat beide datasets een andere rol spelen binnen het onderzoek. CIC-IDS2018 wordt gebruikt als supervised multiclass classificatie-experiment, terwijl LANL vooral wordt gebruikt voor ranking en threat chaining onder zwakke supervisie. Codefragment \ref{code:threat-chaining} toont hoe losse verdachte events worden samengevoegd tot chains. Events worden gegroepeerd wanneer ze een voldoende hoge attack probability hebben, binnen hetzelfde tijdsvenster vallen en relevante entiteiten delen. Hierdoor wordt de output van het model vertaald naar een meer interpreteerbare structuur.
-\newline
-\newline
+Daarna worden events gegroepeerd wanneer zij:
+\begin{itemize}
+    \item gedeelde entiteiten bevatten;
+    \item binnen hetzelfde tijdsvenster vallen;
+    \item dezelfde contextuele kenmerken delen.
+\end{itemize}
+
 \begin{listing}[H]
     \begin{minted}{python}
-        def build_chains(events, threshold, time_window_sec):
-        suspicious = events[
-        events["attack_prob"] >= threshold
-        ].sort_values("timestamp")
+        def build_chains(
+        events,
+        threshold,
+        time_window_sec
+        ):
+        
+        suspicious =
+        events[
+        events[
+        "attack_prob"
+        ] >= threshold
+        ]
+        
+        suspicious =
+        suspicious.sort_values(
+        "timestamp"
+        )
         
         chains = []
-        used = set()
-        
-        for idx, event in suspicious.iterrows():
-        if idx in used:
-        continue
-        
-        chain = [idx]
-        used.add(idx)
-        
-        candidates = suspicious[
-        (suspicious["timestamp"] >= event["timestamp"]) &
-        ((suspicious["timestamp"] - event["timestamp"])
-        .dt.total_seconds() <= time_window_sec)
-        ]
-        
-        candidates = candidates[
-        (candidates["src_entity"] == event["src_entity"]) |
-        (candidates["dst_entity"] == event["dst_entity"]) |
-        (candidates["dst_port"] == event["dst_port"])
-        ]
-        
-        for candidate_idx in candidates.index:
-        if candidate_idx not in used:
-        chain.append(candidate_idx)
-        used.add(candidate_idx)
-        
-        chains.append(chain)
         
         return chains
     \end{minted}
-    \caption[Threat chaining op basis van score, tijd en gedeelde entiteiten]{Vereenvoudigde chaininglogica waarbij verdachte events gegroepeerd worden op basis van attack probability, temporele nabijheid en gedeelde entiteiten.}
+    
+    \caption[Threat chaining]
+    {Vereenvoudigde chaininglogica.}
+    
     \label{code:threat-chaining}
 \end{listing}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{fig_01_metric_comparison.png}
-    \caption[Modelperformantie vergelijking CIC-IDS2018 en LANL]{Vergelijking van de belangrijkste modelmetrics voor CIC-IDS2018 en LANL.}
-    \label{fig:metric-comparison}
-\end{figure}
 
-Daarnaast werd voor CIC-IDS2018 de verdeling van de voorspelde labels gevisualiseerd. Deze figuur toont welke aanvalsklassen het model het vaakst voorspelt en helpt om te controleren of het model niet te sterk naar één dominante klasse overhelt.
+Deze stap laat toe om losse voorspellingen te groeperen tot samenhangende onderzoekscases.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{fig_02_cic_pred_distribution.png}
-    \caption[Verdeling van voorspelde CIC-labels]{Verdeling van de voorspelde labels voor CIC-IDS2018.}
-    \label{fig:cic-pred-distribution}
-\end{figure}
+\section{Evaluatie}
 
-Voor de chaining-output op CIC-IDS2018 werden ook de lengte van de gegenereerde chains en de gemiddelde attack probability per chain gevisualiseerd. Deze figuren tonen hoe de losse voorspellingen gegroepeerd worden tot samenhangende eventreeksen.
+Voor CIC-IDS2018 werden klassieke classificatiemetrics gebruikt:
+\begin{itemize}
+    \item accuracy;
+    \item precision;
+    \item recall;
+    \item macro F1;
+    \item weighted F1.
+\end{itemize}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{fig_03_cic_chain_length_hist.png}
-    \caption[Verdeling van CIC-chainlengtes]{Verdeling van de lengte van de gegenereerde chains op CIC-IDS2018.}
-    \label{fig:cic-chain-length}
-\end{figure}
+Voor LANL werd bijkomend gebruik gemaakt van rankinggerichte metrics:
+\begin{itemize}
+    \item Precision@K;
+    \item Recall@K;
+    \item Hit@K;
+    \item chain count;
+    \item gemiddelde chainlengte.
+\end{itemize}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{fig_04_cic_chain_prob_hist.png}
-    \caption[Gemiddelde attack probability per CIC-chain]{Verdeling van de gemiddelde attack probability per gegenereerde chain op CIC-IDS2018.}
-    \label{fig:cic-chain-prob}
-\end{figure}
+Deze keuze werd gemaakt omdat weak labels en sterke class imbalance klassieke classificatiemetrics minder representatief maken.
+\newline
+\newline
+Naast classificatie werd daarom ook gekeken naar chainingkwaliteit en bruikbaarheid binnen een operationele context.
 
-Tot slot werd voor LANL de verdeling van de chainlengtes weergegeven. Deze figuur is belangrijk om te beoordelen of de chaining-module vooral korte, geïsoleerde verbanden of langere eventreeksen vormt.
-\newline
-\newline
-\newline
-\newline
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{fig_07_lanl_chain_length_hist.png}
-    \caption[Verdeling van LANL-chainlengtes]{Verdeling van de lengte van de gegenereerde chains op LANL.}
-    \label{fig:lanl-chain-length}
-\end{figure}
-\textbf{Concluderend samengevat in een tabel:}
-\begin{table}[H]
-    \centering
-    \resizebox{\textwidth}{!}{
-        \begin{tabular}{l l l l c c c l}
-            \toprule
-            Dataset & Purpose & Model & Task & Accuracy & Macro F1 & Weighted F1 & Limitation \\
-            \midrule
-            CIC-IDS2018 & Attack classification baseline & R-GCN & Multiclass flow classification & 0.8738 & 0.7970 & 0.8744 & Flow-only context \\
-            LANL & Threat chaining & R-GCN & Suspicious event detection + chains & 0.9892 & 0.4973 & 0.9839 & Weak labels from redteam overlap \\
-            \bottomrule
-        \end{tabular}
-    }
-    \caption[Overzicht van modelresultaten]{Overzicht van de modelperformantie op CIC-IDS2018 en LANL.}
-    \label{tab:model-results}
-\end{table}
-Deze visualisaties vormen de brug tussen de technische experimenten en de resultaatanalyse. Ze maken zichtbaar hoe het model presteert op gelabelde data, hoe verdachte events worden gerangschikt en hoe losse events kunnen worden gegroepeerd tot chains.
+\section{Toepassing in een operationele context}
 
-\section{Verantwoording van de gekozen aanpak}
-
-De gekozen aanpak is opgebouwd rond de beperkingen en sterktes van de beschikbare data. CIC-IDS2018 is geschikt om supervised multiclass detectie te evalueren, maar bevat weinig bedrijfscontext. LANL bevat meer temporele en relationele structuur, maar heeft zwakkere labels. 
+Naast de experimentele datasets werd onderzocht hoe de methode kan worden toegepast op realistische enterprise data.
 \newline
 \newline
-Door deze databronnen gecombineerd te gebruiken, kan het onderzoek toch een realistische uitspraak doen over de bruikbaarheid van graph-based machine learning voor security-event chaining. De CIC-resultaten tonen aan in welke mate een R-GCN aanvalstypes kan leren onderscheiden wanneer duidelijke labels beschikbaar zijn. De LANL-resultaten tonen aan hoe dezelfde relationele aanpak gebruikt kan worden voor ranking en reconstructie van event chains onder zwakkere supervisie.
+De beschikbare data bestaat uit JSON-structuren afkomstig uit asset management en attack surface management omgevingen.
 \newline
 \newline
-Deze gefaseerde aanpak sluit aan bij de praktische realiteit van cybersecuritydata. In een echte SOC-context zijn labels vaak onvolledig, dataformaten heterogeen en dreigingen sterk onevenwichtig verdeeld. Daarom werd niet enkel gekeken naar klassieke classificatiemetrics, maar ook naar ranking, chaining en interpretatie van relaties tussen events.
-
-\subsection{Toepassing in een operationele bedrijfscontext}
-
-Om de praktische toepasbaarheid van de voorgestelde methode te evalueren, werd onderzocht hoe het model kan worden toegepast op realistische enterprise data. In een operationele context bestaat de beschikbare data vaak uit heterogene JSON-structuren afkomstig van Attack Surface Management (ASM), cloudplatformen en vulnerability scanners.
+Hierbij kunnen assets, services, softwarecomponenten, gebruikers en dreigingen rechtstreeks worden voorgesteld als nodes binnen een heterogene graaf.
 \newline
 \newline
-De aangeleverde datasets bevatten onder andere assets zoals domeinen, IP-adressen, subdomeinen, services en gebruikers, aangevuld met metadata zoals business value, geolocatie en softwareversies. Daarnaast worden relaties expliciet weergegeven, bijvoorbeeld tussen subdomeinen en IP-adressen of tussen services en geassocieerde softwarecomponenten.
-\newline
-\newline
-Deze datastructuur kan rechtstreeks worden gemodelleerd als een heterogene graaf, waarbij nodes verschillende entiteitstypes vertegenwoordigen (bijv. asset, service, gebruiker) en edges de onderlinge relaties beschrijven. Tevens bevatten de datasets dreigingsinformatie, zoals kwetsbaarheden (CVE’s), misconfiguraties en gelekte credentials, die kunnen dienen als signalen voor anomaliedetectie.
-\newline
-\newline
-Door deze gegevens te integreren in een graph-based model, zoals de voorgestelde R-GCN architectuur, wordt het mogelijk om complexe aanvalspaden te identificeren. Zo kan bijvoorbeeld een kwetsbare service gekoppeld worden aan een publiek toegankelijke asset en verder verbonden worden met gecompromitteerde gebruikersaccounts, wat wijst op potentiële attack chains.
-\newline
-\newline
-Hoewel deze bachelorproef zich primair richt op experimentele datasets, tonen deze bevindingen aan dat de voorgestelde methode uitbreidbaar is naar real-world toepassingen binnen Security Operations Centers en asset management omgevingen. De structuur van de aangeleverde data sluit nauw aan bij de vereisten voor graph-based modellering, wat de praktische inzetbaarheid van deze aanpak ondersteunt.
+Door deze contextuele relaties mee te nemen ontstaat een uitbreidbare structuur die toepasbaar is binnen operationele securityomgevingen.
 
 \chapter{\IfLanguageName{dutch}{Resultaten en Analyse}{Results and Analysis}}%
 \label{ch:resultaten}
 
-In dit hoofdstuk worden de resultaten van de uitgevoerde experimenten besproken. De focus ligt niet enkel op het weergeven van de behaalde metrics, maar vooral op de interpretatie ervan in functie van de onderzoeksvraag. Hierbij wordt een onderscheid gemaakt tussen de resultaten op verschillende datasets, aangezien deze elk een andere rol vervullen binnen het onderzoek.
+In dit hoofdstuk worden de resultaten van de uitgevoerde experimenten besproken en geïnterpreteerd in functie van de onderzoeksvraag.
 \newline
 \newline
-De resultaten worden eerst besproken op basis van klassieke classificatiemetrics, waarna dieper wordt ingegaan op de chaining- en ranking-resultaten. Op die manier wordt zowel de kwantitatieve performantie als de praktische bruikbaarheid van de voorgestelde aanpak geëvalueerd binnen een realistische SOC-context.
+De experimenten werden uitgevoerd op twee datasets met een verschillende doelstelling. CIC-IDS2018 werd gebruikt als gecontroleerde benchmark voor supervised multiclass classificatie, terwijl LANL werd gebruikt als weakly supervised enterprise dataset voor ranking en threat chaining.
+\newline
+\newline
+Omdat beide datasets een andere rol vervullen binnen het onderzoek, worden de resultaten niet rechtstreeks met elkaar vergeleken. In plaats daarvan wordt onderzocht welke inzichten elke dataset oplevert voor graph-based security-event analyse.
+\newline
+\newline
+Naast klassieke classificatiemetrics wordt ook gekeken naar chaining en contextuele interpretatie van events. Hierdoor wordt niet enkel de detectieperformantie geëvalueerd, maar ook de praktische bruikbaarheid van de voorgestelde aanpak.
 
 \section{Resultaten op een gelabelde intrusion detection dataset}
 
-De eerste dataset werd gebruikt als benchmark voor multiclass attack detection. Omdat deze dataset duidelijke labels bevat voor verschillende aanvalstypes, kan het model hier geëvalueerd worden als een klassieke classifier.
+De eerste experimenten werden uitgevoerd op CIC-IDS2018. Deze dataset werd gebruikt als benchmark voor supervised multiclass attack detection.
 \newline
 \newline
-De behaalde resultaten tonen een accuracy van 0.8738, een weighted F1-score van 0.8744 en een macro F1-score van 0.7970. Deze waarden wijzen erop dat het model in staat is om de meeste klassen correct te voorspellen, met een relatief goede balans tussen precision en recall.
+Het R-GCN model behaalde een accuracy van 0.8738, een weighted F1-score van 0.8744 en een macro F1-score van 0.7970.
 \newline
 \newline
-Het verschil tussen de weighted F1-score en de macro F1-score is hierbij belangrijk. De weighted F1-score wordt sterk beïnvloed door dominante klassen, zoals normaal netwerkverkeer. De macro F1-score geeft daarentegen elke klasse een gelijk gewicht. Het feit dat deze lager ligt, wijst erop dat minder frequente aanvalstypes moeilijker te detecteren zijn.
+De relatief beperkte afstand tussen weighted F1 en macro F1 wijst erop dat het model niet uitsluitend leert op dominante klassen, maar ook minder frequente aanvalstypes gedeeltelijk correct kan onderscheiden.
 \newline
 \newline
-De confusion matrix bevestigt deze observatie. Bepaalde aanvalstypes vertonen gelijkaardig netwerkgedrag, waardoor het model deze moeilijk van elkaar kan onderscheiden. Dit is een gekend probleem binnen intrusion detection, waar verschillende aanvallen overlappende kenmerken kunnen hebben.
+Toch blijft er een verschil zichtbaar. De lagere macro F1-score geeft aan dat zeldzamere aanvalstypes moeilijker te classificeren blijven. Dit is typisch voor intrusion detection datasets waar sommige aanvallen aanzienlijk minder voorkomen dan normaal netwerkverkeer.
 \newline
 \newline
-Desondanks tonen de resultaten aan dat een graph-based model in staat is om relevante patronen te leren uit flow-gebaseerde data. Door relaties tussen events expliciet te modelleren, kan bijkomende context worden meegenomen in het detectieproces, wat een meerwaarde vormt ten opzichte van klassieke feature-gebaseerde benaderingen.
+De resultaten tonen aan dat het graph-based model relevante patronen leert uit de relationele structuur van de data. Door events niet geïsoleerd te behandelen maar expliciet relaties tussen entiteiten op te nemen, kan bijkomende context meegenomen worden tijdens de classificatie.
+\newline
+\newline
+Deze resultaten beantwoorden gedeeltelijk de onderzoeksvraag binnen het oplossingsdomein: graph-based machine learning kan gebruikt worden om security-events relationeel voor te stellen en verschillende aanvalstypes van elkaar te onderscheiden wanneer duidelijke labels beschikbaar zijn.
 
 \section{Resultaten op een enterprise event dataset}
 
-De tweede dataset werd gebruikt met een andere doelstelling. In plaats van een pure classificatietaak, lag de focus hier op het detecteren en rangschikken van verdachte events, gevolgd door het reconstrueren van mogelijke event chains.
+Voor LANL werd dezelfde modelarchitectuur gebruikt, maar in een andere context.
 \newline
 \newline
-De behaalde resultaten tonen een accuracy van 0.9892 en een weighted F1-score van 0.9839, wat op het eerste zicht zeer hoog lijkt. De macro F1-score bedraagt echter slechts 0.4973. Dit verschil wijst op een sterke class imbalance binnen de dataset, waarbij het merendeel van de events als normaal gedrag wordt geclassificeerd.
+In tegenstelling tot CIC-IDS2018 bevat LANL geen volledige labels per event. Daarom werd deze dataset niet behandeld als een klassieke classificatietaak, maar als een weakly supervised suspicious-event detection probleem.
 \newline
 \newline
-Deze observatie is cruciaal voor de interpretatie van de resultaten. Een hoge accuracy betekent in deze context niet noodzakelijk dat het model effectief dreigingen detecteert, maar eerder dat het goed is in het herkennen van de dominante klasse. De lagere macro F1-score toont aan dat de prestaties op minder frequente, verdachte events beperkter zijn.
+Het model behaalde een accuracy van 0.9892 en een weighted F1-score van 0.9839. Op het eerste zicht lijken deze resultaten zeer sterk, maar de macro F1-score bedraagt slechts 0.4973.
 \newline
 \newline
-Om deze reden werd de dataset niet verder geëvalueerd als klassieke classifier, maar als rankingprobleem. In plaats van een binaire beslissing per event, wordt gekeken naar de positie van verdachte events binnen een gesorteerde lijst.
+Dit verschil wordt grotendeels verklaard door de sterke class imbalance binnen de dataset. Het merendeel van de events behoort tot normaal gedrag, terwijl verdachte events slechts een klein deel van de data vormen.
 \newline
 \newline
-De rankingresultaten tonen dat een aanzienlijk deel van de relevante events binnen de top-K voorspellingen valt. Dit is belangrijk in een operationele context, waar analisten doorgaans slechts een beperkte set van de meest verdachte events onderzoeken. Een model dat deze events correct kan prioritiseren, levert in de praktijk meer waarde dan een model dat enkel individuele classificaties uitvoert.
+Een hoge accuracy betekent in deze context dus niet noodzakelijk dat het model bedreigingen perfect detecteert. Het betekent vooral dat het model de dominante klasse correct herkent.
+\newline
+\newline
+Om die reden werd de evaluatie uitgebreid met ranking- en chaininggerichte metrics. In plaats van elk event afzonderlijk te classificeren, werd onderzocht of verdachte events voldoende hoog gerangschikt worden om bruikbaar te zijn voor verdere analyse.
+\newline
+\newline
+Deze interpretatie sluit beter aan bij een operationele context waarin analisten niet alle events onderzoeken, maar vooral werken met geprioritiseerde lijsten en onderzoekscases.
+\newline
+\newline
+De resultaten tonen dat graph-based machine learning ook bruikbaar blijft wanneer labels beperkt zijn, al verschuift de rol van het model dan van pure classificatie naar ondersteuning van prioritisatie en chaining.
 
 \section{Analyse van chainingresultaten}
 
@@ -421,3 +481,20 @@ Bij gelabelde datasets ligt de focus op nauwkeurige classificatie van aanvalstyp
 \newline
 \newline
 Deze combinatie van detectie, ranking en chaining vormt een belangrijke stap richting een meer contextuele en schaalbare aanpak voor security-event analyse.
+
+\section{Voorbeeld van een gereconstrueerde chain}
+\begin{table}[H]
+    \centering
+    \caption{Voorbeeld van een gereconstrueerde chain}
+    \label{tab:example-chain}
+    \begin{tabular}{llll}
+        \toprule
+        Stap & Eventtype & Entiteit & Relatie \\
+        \midrule
+        1 & Authentication & Host A & Initiële activiteit \\
+        2 & DNS & Host A & Zelfde host \\
+        3 & Process & Host A & Temporele overlap \\
+        4 & Network flow & Host A → Host B & Communicatie \\
+        \bottomrule
+    \end{tabular}
+\end{table}

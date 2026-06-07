@@ -74,7 +74,7 @@ Tot slot blijven er belangrijke praktische uitdagingen bij ML in security, waaro
 Waar klassieke ML-modellen vertrekken vanuit individuele events als onafhankelijke observaties, vertrekt graph-based machine learning vanuit het expliciet modelleren van relaties tussen entiteiten. In cybersecuritycontexten kunnen gebruikers, endpoints, IP-adressen, applicaties en events worden voorgesteld als nodes, terwijl interacties zoals netwerkcommunicatie, loginpogingen of procesuitvoering worden gemodelleerd als edges \autocite{Kanka2022}.
 \newline
 \newline
-Deze relationele aanpak past goed bij hoe cyberaanvallen in de praktijk verlopen, die zelden uit één geïsoleerd event bestaan, maar doorgaans meerdere stappen omvatten, verspreid over verschillende systemen en tijdsvensters. Door security-data om te zetten naar een grafenstructuur wordt het mogelijk om aanvalspaden te reconstrueren als samenhangende subgraphs in plaats van losse alerts.
+Deze relationele aanpak past goed bij hoe cyberaanvallen in de praktijk verlopen. Cyberaanvallen bestaan zelden uit één geïsoleerd event, maar uit meerdere onderling gerelateerde stappen die verspreid zijn over verschillende systemen en tijdsvensters. Door security-data om te zetten naar een grafenstructuur wordt het mogelijk om aanvalspaden te reconstrueren als samenhangende subgraphs in plaats van losse alerts.
 \newline
 \newline
 Graph-based benaderingen maken het mogelijk om topologische eigenschappen van het netwerk te benutten. Kenmerken zoals node degree, centrality, community-structuren en padlengtes kunnen worden geëxtraheerd als input voor machine learning-modellen. Kanka et al. benadrukken dat dergelijke topologische representaties verborgen afhankelijkheden zichtbaar maken en het detecteren van gecoördineerde aanvalscampagnes, laterale beweging en privilege-escalatie vergemakkelijken \autocite{Kanka2022}.
@@ -104,6 +104,20 @@ Tegelijk brengt graph-based ML bijkomende uitdagingen met zich mee. De performan
 \newline
 \newline
 Een doordachte methodologie voor data-normalisatie, verrijking en grafconstructie is daarom essentieel. Pas wanneer de grafenstructuur correct is opgebouwd, kunnen modellen objectief geëvalueerd worden aan de hand van metrics zoals precision, recall, F1-score en detectietijd, wat cruciaal is voor praktische inzet binnen SOC-omgevingen.
+
+\section{Weak Supervision en Class Imbalance in Security Detection}
+
+Een belangrijke uitdaging binnen security datasets is de beperkte beschikbaarheid van kwalitatieve labels. In realistische omgevingen worden slechts een beperkt aantal events expliciet gelabeld als kwaadaardig, terwijl het merendeel van de data normaal gedrag bevat. Hierdoor ontstaat vaak een sterke class imbalance waarbij verdachte events slechts een klein percentage van de totale dataset vertegenwoordigen.
+\newline
+\newline
+Volgens \textcite{Krawczyk2016} hebben class imbalance problemen een directe impact op de performantie van machine learning modellen. Hoge accuracy-scores kunnen misleidend zijn wanneer dominante klassen het grootste deel van de data vormen. Hierdoor worden metrics zoals macro F1-score, precision en recall belangrijker voor het evalueren van minder frequente klassen.
+\newline
+\newline
+Binnen cybersecuritycontexten wordt daarom steeds vaker gebruik gemaakt van weakly supervised benaderingen. Hierbij worden labels niet rechtstreeks toegekend aan elk individueel event, maar afgeleid uit bijkomende context zoals threat intelligence, correlatieregels of beperkte incidentinformatie \autocite{Zhou2018WeakSupervision}.
+\newline
+\newline
+Deze aanpak sluit beter aan bij realistische SOC-omgevingen waar volledige labeling vaak niet haalbaar is. In dergelijke situaties verschuift de focus van pure classificatie naar prioritisatie, ranking en contextuele analyse van events.
+
 \section{Onderzoeksopeningen}
 De literatuur toont een duidelijke evolutie van rule-based correlatie naar ML-ondersteunde analyse, en verder naar graph-gebaseerde modellen die relatie en context expliciet modelleren. Toch blijven er open onderzoeksvragen wanneer men graph-based technieken wil toepassen op realistische SOC-data.
 \newline
@@ -117,7 +131,10 @@ Ten tweede blijft de link tussen correlatie en operationele meerwaarde cruciaal.
 Ten derde is evaluatie vaak een knelpunt: chaining en correlatie zijn niet enkel classificatieproblemen. De vraag is niet alleen “is dit alert verdacht?”, maar “welke events horen bij elkaar, in welke volgorde, en vormen zij samen een aanvalspad?”. Dit vereist geschikte evaluatiemetrics (bv. precision/recall op edges of op reconstructed cases) en een duidelijke manier om te bepalen wat als correcte detectie geldt in datasets waar weinig labels beschikbaar zijn.
 \newline
 \newline
-Deze openingen sluiten rechtstreeks aan bij de centrale onderzoeksvraag van deze bachelorproef, namelijk hoe graph-based machine learning kan worden toegepast om security-events automatisch te chainen en te correleren zodat complexe aanvalspatronen sneller en accurater worden gedetecteerd. Op basis daarvan worden in het vervolg de deelvragen rond probleemdomein en oplossingsdomein verder uitgewerkt in de methodologie en het prototype-ontwerp.
+Deze openingen sluiten rechtstreeks aan bij de centrale onderzoeksvraag van deze bachelorproef, namelijk hoe graph-based machine learning kan worden toegepast om security-events automatisch te chainen en te correleren zodat complexe aanvalspatronen contextueler en overzichtelijker kunnen worden geanalyseerd.
+\newline
+\newline
+De nadruk ligt hierbij niet op het aantonen van een hogere detectienauwkeurigheid ten opzichte van traditionele rule-based systemen, maar op het onderzoeken van de meerwaarde van relationele modellering, prioritisatie en chaining binnen een SOC-context. Op basis daarvan worden in het vervolg de deelvragen rond probleemdomein en oplossingsdomein verder uitgewerkt in de methodologie en het prototype-ontwerp.
 
 
 

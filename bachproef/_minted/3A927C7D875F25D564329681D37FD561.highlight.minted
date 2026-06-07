@@ -1,0 +1,23 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k}{def} \PYG{n+nf}{build\PYGZus{}chains}\PYG{p}{(}
+\PYG{n}{events}\PYG{p}{,}
+\PYG{n}{threshold}\PYG{p}{,}
+\PYG{n}{time\PYGZus{}window\PYGZus{}sec}
+\PYG{p}{):}
+
+\PYG{n}{suspicious} \PYG{o}{=}
+\PYG{n}{events}\PYG{p}{[}
+\PYG{n}{events}\PYG{p}{[}
+\PYG{l+s+s2}{\PYGZdq{}attack\PYGZus{}prob\PYGZdq{}}
+\PYG{p}{]} \PYG{o}{\PYGZgt{}=} \PYG{n}{threshold}
+\PYG{p}{]}
+
+\PYG{n}{suspicious} \PYG{o}{=}
+\PYG{n}{suspicious}\PYG{o}{.}\PYG{n}{sort\PYGZus{}values}\PYG{p}{(}
+\PYG{l+s+s2}{\PYGZdq{}timestamp\PYGZdq{}}
+\PYG{p}{)}
+
+\PYG{n}{chains} \PYG{o}{=} \PYG{p}{[]}
+
+\PYG{k}{return} \PYG{n}{chains}
+\end{MintedVerbatim}

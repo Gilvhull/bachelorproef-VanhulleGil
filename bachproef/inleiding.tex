@@ -37,46 +37,59 @@ Het centrale probleem van deze bachelorproef is dan ook het gebrek aan een geaut
 
 \section{\IfLanguageName{dutch}{Onderzoeksvraag}{Research question}}%
 \label{sec:onderzoeksvraag}
-\textbf{Vanuit deze probleemstelling wordt de volgende hoofdonderzoeksvraag geformuleerd:}
+
+Vanuit deze probleemstelling wordt de volgende hoofdonderzoeksvraag geformuleerd:
 \newline
 \newline
-Hoe kan graph-based machine learning worden toegepast om security-events automatisch te chainen en te correleren, zodat complexe aanvalspatronen sneller en accurater worden gedetecteerd dan met traditionele rule-based systemen?
+Hoe kan graph-based machine learning worden toegepast om security-events automatisch te correleren en te chainen, zodat complexe aanvalspatronen contextueler en overzichtelijker kunnen worden geanalyseerd binnen een SOC-context?
 \newline
 \newline
-Om deze vraag te beantwoorden, worden zowel het probleemdomein als het oplossingsdomein onderzocht.
+Deze onderzoeksvraag vertrekt niet vanuit het idee dat graph-based machine learning traditionele rule-based systemen volledig vervangt. De focus ligt eerder op het onderzoeken of een graph-based aanpak extra context kan toevoegen aan bestaande detectie- en correlatiemechanismen.
+\newline
+\newline
+Om deze vraag te beantwoorden, wordt een onderscheid gemaakt tussen het probleemdomein en het oplossingsdomein.
 \newline
 \newline
 \textbf{Binnen het probleemdomein wordt nagegaan:}
 \begin{itemize}
-    \item Welke types security-events en datavelden relevant zijn voor chaining.
-    \item Hoe events momenteel worden gecorreleerd binnen SOC-omgevingen.
-    \item Welke beperkingen bestaan bij rule-based correlatie en klassieke SIEM-systemen.
-    \item Welke relaties (tijd, asset, IP-adres, type dreiging) cruciaal zijn om events semantisch te verbinden.
+    \item Welke types security-events en datavelden relevant zijn om verbanden tussen events te leggen.
+    \item Waarom klassieke rule-based correlatie moeilijk schaalbaar is bij grote hoeveelheden alerts.
+    \item Welke rol tijd, assets, IP-adressen, gebruikers en eventtypes spelen bij het reconstrueren van mogelijke aanvalsketens.
+    \item Waarom labels, class imbalance en heterogene dataformaten een uitdaging vormen binnen cybersecuritydatasets.
 \end{itemize}
+
 \textbf{Binnen het oplossingsdomein wordt onderzocht:}
 \begin{itemize}
-    \item Welke graph-based machine learning technieken geschikt zijn voor event correlatie.
-    \item Hoe security-events kunnen worden omgezet naar een grafenstructuur.
-    \item Hoe de performantie van een chaining-model objectief kan worden geëvalueerd.
-    \item In welke mate een graph-based aanpak betere detectieresultaten oplevert dan een baseline rule-based methode.
+    \item Hoe security-events kunnen worden omgezet naar een grafenstructuur met nodes en edges.
+    \item Hoe een Relational Graph Convolutional Network gebruikt kan worden om events te classificeren of te scoren.
+    \item Hoe modeloutput gebruikt kan worden om verdachte events te rangschikken.
+    \item Hoe verdachte events via een chaining-stap gegroepeerd kunnen worden op basis van gedeelde entiteiten en temporele nabijheid.
+    \item Welke beperkingen optreden wanneer labels onvolledig zijn of wanneer de dataset sterk onevenwichtig verdeeld is.
 \end{itemize}
 %Wees zo concreet mogelijk bij het formuleren van je onderzoeksvraag. Een onderzoeksvraag is trouwens iets waar nog niemand op dit moment een antwoord heeft (voor zover je kan nagaan). Het opzoeken van bestaande informatie (bv. ``welke tools bestaan er voor deze toepassing?'') is dus geen onderzoeksvraag. Je kan de onderzoeksvraag verder specifiëren in deelvragen. Bv.~als je onderzoek gaat over performantiemetingen, dan 
 
 \section{\IfLanguageName{dutch}{Onderzoeksdoelstelling}{Research objective}}%
 \label{sec:onderzoeksdoelstelling}
-Het doel van deze bachelorproef is het ontwikkelen en evalueren van een proof-of-concept waarin security-events worden gemodelleerd als een graafstructuur en geanalyseerd met graph-based machine learning technieken, zoals Graph Neural Networks.
+
+Het doel van deze bachelorproef is het ontwikkelen en evalueren van een proof-of-concept waarin security-events worden voorgesteld als een graafstructuur en geanalyseerd met graph-based machine learning.
 \newline
 \newline
-\textbf{Het prototype moet aantonen in welke mate deze aanpak:}
+Binnen deze proof-of-concept worden twee experimentele settings uitgewerkt. Eerst wordt een supervised multiclass classificatie-experiment uitgevoerd op CIC-IDS2018. Deze dataset bevat duidelijke labels en laat toe om na te gaan of een R-GCN-model verschillende aanvalstypes kan onderscheiden.
+\newline
+\newline
+Daarna wordt dezelfde graph-based aanpak toegepast op LANL-data. Deze dataset bevat meer realistische enterprise-events, maar de labels zijn beperkter en worden afgeleid uit redteam-informatie. Hierdoor wordt deze setting niet behandeld als een zuivere multiclass classificatietaak, maar als een weakly supervised suspicious-event detection probleem waarbij ranking en chaining centraal staan.
+\newline
+\newline
+Het prototype moet aantonen in welke mate deze aanpak:
 \begin{itemize}
-\item een hogere detectienauwkeurigheid bereikt.
-
-\item complexere aanvalsketens correct kan reconstrueren.
-
-\item een meer contextueel overzicht biedt voor SOC-analisten.
+    \item security-events kan voorstellen als een relationele graaf;
+    \item aanvalstypes kan onderscheiden wanneer duidelijke labels beschikbaar zijn;
+    \item verdachte events kan rangschikken wanneer labels beperkter of zwakker zijn;
+    \item events kan groeperen tot mogelijke chains op basis van tijd en gedeelde entiteiten;
+    \item inzicht geeft in de beperkingen van graph-based machine learning bij class imbalance en weak labels.
 \end{itemize}
-De performantie wordt geëvalueerd aan de hand van objectieve metrics zoals precision, recall en F1-score, en vergeleken met een eenvoudige rule-based baseline.
-%Wat is het beoogde resultaat van je bachelorproef? Wat zijn de criteria voor succes? Beschrijf die zo concreet mogelijk. Gaat het bv.\ om een proof-of-concept, een prototype, een verslag met aanbevelingen, een vergelijkende studie, enz.
+
+De performantie wordt geëvalueerd met metrics die aansluiten bij de rol van elke dataset. Voor CIC-IDS2018 worden klassieke classificatiemetrics gebruikt, zoals accuracy, precision, recall en F1-score. Voor LANL wordt daarnaast gekeken naar ranking- en chaininggerichte evaluatie, omdat deze beter aansluit bij de manier waarop verdachte events in een SOC-context onderzocht worden.
 
 \section{\IfLanguageName{dutch}{Opzet van deze bachelorproef}{Structure of this bachelor thesis}}%
 \label{sec:opzet-bachelorproef}

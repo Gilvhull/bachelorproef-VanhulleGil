@@ -1,0 +1,34 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{n}{labels} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{events}\PYG{p}{),} \PYG{n}{dtype}\PYG{o}{=}\PYG{n}{np}\PYG{o}{.}\PYG{n}{int64}\PYG{p}{)}
+\PYG{n}{w} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{timedelta64}\PYG{p}{(}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{window\PYGZus{}sec}\PYG{p}{),} \PYG{l+s+s1}{\PYGZsq{}s\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ts} \PYG{o}{=} \PYG{n}{events}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}timestamp\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{values}\PYG{o}{.}\PYG{n}{astype}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}datetime64[ns]\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{se} \PYG{o}{=} \PYG{n}{events}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}src\PYGZus{}entity\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{astype}\PYG{p}{(}\PYG{n+nb}{str}\PYG{p}{)}\PYG{o}{.}\PYG{n}{values}
+\PYG{n}{de} \PYG{o}{=} \PYG{n}{events}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}dst\PYGZus{}entity\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{astype}\PYG{p}{(}\PYG{n+nb}{str}\PYG{p}{)}\PYG{o}{.}\PYG{n}{values}
+\PYG{n}{red\PYGZus{}times} \PYG{o}{=} \PYG{n}{redteam}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}timestamp\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{values}\PYG{o}{.}\PYG{n}{astype}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}datetime64[ns]\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{red\PYGZus{}src} \PYG{o}{=} \PYG{n}{redteam}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}src\PYGZus{}computer\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{values}
+\PYG{n}{red\PYGZus{}dst} \PYG{o}{=} \PYG{n}{redteam}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}dst\PYGZus{}computer\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{values}
+
+\PYG{n}{order} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{argsort}\PYG{p}{(}\PYG{n}{ts}\PYG{p}{)}
+\PYG{n}{ts\PYGZus{}s} \PYG{o}{=} \PYG{n}{ts}\PYG{p}{[}\PYG{n}{order}\PYG{p}{]}
+\PYG{n}{mode} \PYG{o}{=} \PYG{n+nb}{str}\PYG{p}{(}\PYG{n}{weak\PYGZus{}label\PYGZus{}mode}\PYG{p}{)}\PYG{o}{.}\PYG{n}{lower}\PYG{p}{()}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+
+\PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{redteam}\PYG{p}{)):}
+\PYG{n}{t0}\PYG{p}{,} \PYG{n}{t1} \PYG{o}{=} \PYG{n}{red\PYGZus{}times}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{n}{w}\PYG{p}{,} \PYG{n}{red\PYGZus{}times}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{+} \PYG{n}{w}
+\PYG{n}{lo} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{searchsorted}\PYG{p}{(}\PYG{n}{ts\PYGZus{}s}\PYG{p}{,} \PYG{n}{t0}\PYG{p}{,} \PYG{n}{side}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}left\PYGZsq{}}\PYG{p}{))}
+\PYG{n}{hi} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{searchsorted}\PYG{p}{(}\PYG{n}{ts\PYGZus{}s}\PYG{p}{,} \PYG{n}{t1}\PYG{p}{,} \PYG{n}{side}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}right\PYGZsq{}}\PYG{p}{))}
+\PYG{k}{if} \PYG{n}{lo} \PYG{o}{\PYGZgt{}=} \PYG{n}{hi}\PYG{p}{:}
+\PYG{k}{continue}
+\PYG{n}{idx} \PYG{o}{=} \PYG{n}{order}\PYG{p}{[}\PYG{n}{lo}\PYG{p}{:}\PYG{n}{hi}\PYG{p}{]}
+\PYG{k}{if} \PYG{n}{mode} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}strict\PYGZsq{}}\PYG{p}{:}
+\PYG{n}{m} \PYG{o}{=} \PYG{p}{(}
+\PYG{p}{(}\PYG{n}{se}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]} \PYG{o}{==} \PYG{n}{red\PYGZus{}src}\PYG{p}{[}\PYG{n}{i}\PYG{p}{])} \PYG{o}{\PYGZam{}} \PYG{p}{(}\PYG{n}{de}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]} \PYG{o}{==} \PYG{n}{red\PYGZus{}dst}\PYG{p}{[}\PYG{n}{i}\PYG{p}{])}
+\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}
+\PYG{p}{(}\PYG{n}{se}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]} \PYG{o}{==} \PYG{n}{red\PYGZus{}dst}\PYG{p}{[}\PYG{n}{i}\PYG{p}{])} \PYG{o}{\PYGZam{}} \PYG{p}{(}\PYG{n}{de}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]} \PYG{o}{==} \PYG{n}{red\PYGZus{}src}\PYG{p}{[}\PYG{n}{i}\PYG{p}{])}
+\PYG{p}{)}
+\PYG{k}{else}\PYG{p}{:}
+\PYG{n}{m} \PYG{o}{=} \PYG{p}{(}
+\PYG{p}{(}\PYG{n}{se}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]} \PYG{o}{==} \PYG{n}{red\PYGZus{}src}\PYG{p}{[}\PYG{n}{i}\PYG{p}{])} \PYG{o}{|} \PYG{p}{(}\PYG{n}{de}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]} \PYG{o}{==} \PYG{n}{red\PYGZus{}src}\PYG{p}{[}\PYG{n}{i}\PYG{p}{])}
+\PYG{o}{|} \PYG{p}{(}\PYG{n}{se}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]} \PYG{o}{==} \PYG{n}{red\PYGZus{}dst}\PYG{p}{[}\PYG{n}{i}\PYG{p}{])} \PYG{o}{|} \PYG{p}{(}\PYG{n}{de}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]} \PYG{o}{==} \PYG{n}{red\PYGZus{}dst}\PYG{p}{[}\PYG{n}{i}\PYG{p}{])}
+\PYG{p}{)}
+\PYG{n}{labels}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{[}\PYG{n}{m}\PYG{p}{]]} \PYG{o}{=} \PYG{l+m+mi}{1}
+\end{MintedVerbatim}
